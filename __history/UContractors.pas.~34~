@@ -20,6 +20,8 @@ procedure readContrFile(const head:TContrAdr);
 procedure saveContrFile(const head:TContrAdr);
 procedure insertContrList(const head: TContrAdr; name:string);
 procedure writeContrList(var head:TContrAdr);
+procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House');
 
 implementation
 uses
@@ -27,6 +29,19 @@ uses
 const
   ContrFile = 'contractors.brakh';
 
+function adrOf(head: TContrAdr; name: string):TContrAdr;
+var
+  temp: TContrAdr;
+begin
+  temp := head;
+  Result := nil;
+  while(temp <> nil) do
+  begin
+    if temp^.Info.Name = name then
+      Result:=temp;
+    temp := temp^.Adr;
+  end;
+end;
 
 procedure readContrFile(const head:TContrAdr);
 var
@@ -47,6 +62,7 @@ begin
       read(f, Temp^.Info);
       new(Temp^.WorkersHead);
       Temp^.WorkersHead.Adr := nil;
+      readFromFileWithContractors(temp^.WorkersHead, temp^.Info.Name);
       //OTemp^.Info
     end;
     close(f);
@@ -63,14 +79,19 @@ end;
 procedure saveContrFile(const head:TContrAdr);
 var
   f: file of TContractorsInfo;
+  f2: file of TWorkersInfo;
   temp: TContrAdr;
 begin
+  AssignFile(f2, WorkFile);
+  Rewrite(f2);
+  Close(f2);
   AssignFile(f, ContrFile);
   rewrite(f);
   temp := head^.adr;
   while temp <> nil do
   begin
     write(f, temp^.Info);
+    saveWorkFile(temp^.WorkersHead);
     temp:=temp^.adr;
   end;
   close(F);
@@ -80,17 +101,23 @@ procedure insertContrList(const head: TContrAdr; name:string);
 var
   temp:TContrAdr;
 begin
-  temp := head;
-  while temp^.adr <> nil do
+  if (adrOf(head,name) <> nil) then
   begin
-    temp := temp^.adr;
-  end;
-  new(temp^.adr);
-  temp:=temp^.adr;
-  temp^.adr:=nil;
-  temp^.Info.Name := name;
-  New(temp^.WorkersHead);
-  temp^.WorkersHead.Adr := nil;
+    temp := head;
+    while temp^.adr <> nil do
+    begin
+      temp := temp^.adr;
+    end;
+    new(temp^.adr);
+    temp:=temp^.adr;
+    temp^.adr:=nil;
+    temp^.Info.Name := name;
+    New(temp^.WorkersHead);
+    temp^.WorkersHead.Adr := nil;
+
+  end
+  else
+    writeln('The company is already registered');
 end;
 
 procedure writeContrList(var head:TContrAdr);
@@ -105,5 +132,24 @@ begin
     temp:=temp^.adr;
   end;
 end;
+
+procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+var
+  temp:TContrAdr;
+begin
+  temp := head;
+  while temp <> nil do
+  begin
+    if (temp^.Info.Name = company) then
+    begin
+      insertWorkList(temp^.WorkersHead, company, Name, Salary, ObjType);
+      Exit;
+    end;
+    temp:=temp^.Adr;
+  end;
+  Writeln('Company not found');
+end;
+
 
 end.

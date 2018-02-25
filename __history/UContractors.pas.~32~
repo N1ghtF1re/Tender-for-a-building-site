@@ -11,7 +11,7 @@ type
   TContractorsList = record  // Список подрядчиков
     Info: TContractorsInfo;    // Блок информации
     WorkersHead: TWorkAdr;     // Ссылка на голову списка рабочих этой компании
-    Adr: TContrAdr             // Адрес след. элемента в списке
+    Adr: TContrAdr;            // Адрес след. элемента в списке
   end;
   { *** СПИСОК ПОДРЯДЧИКОВ КОНЕЦ *** }
 
@@ -20,6 +20,8 @@ procedure readContrFile(const head:TContrAdr);
 procedure saveContrFile(const head:TContrAdr);
 procedure insertContrList(const head: TContrAdr; name:string);
 procedure writeContrList(var head:TContrAdr);
+procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House');
 
 implementation
 uses
@@ -47,6 +49,7 @@ begin
       read(f, Temp^.Info);
       new(Temp^.WorkersHead);
       Temp^.WorkersHead.Adr := nil;
+      readFromFileWithContractors(temp^.WorkersHead, temp^.Info.Name);
       //OTemp^.Info
     end;
     close(f);
@@ -63,14 +66,19 @@ end;
 procedure saveContrFile(const head:TContrAdr);
 var
   f: file of TContractorsInfo;
+  f2: file of TWorkersInfo;
   temp: TContrAdr;
 begin
+  AssignFile(f2, WorkFile);
+  Rewrite(f2);
+  Close(f2);
   AssignFile(f, ContrFile);
   rewrite(f);
   temp := head^.adr;
   while temp <> nil do
   begin
     write(f, temp^.Info);
+    saveWorkFile(temp^.WorkersHead);
     temp:=temp^.adr;
   end;
   close(F);
@@ -105,5 +113,25 @@ begin
     temp:=temp^.adr;
   end;
 end;
+
+procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+var
+  temp:TContrAdr;
+begin
+  temp := head;
+  while temp <> nil do
+  begin
+    if (temp^.Info.Name = company) then
+    begin
+      insertWorkList(temp^.WorkersHead, company, Name, Salary, ObjType);
+      Exit;
+    end;
+    temp:=temp^.Adr;
+  end;
+  Writeln('Company not found');
+end;
+
+
 
 end.

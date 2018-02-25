@@ -29,6 +29,19 @@ uses
 const
   ContrFile = 'contractors.brakh';
 
+function adrOf(head: TContrAdr; name: string):TContrAdr;
+var
+  temp: TContrAdr;
+begin
+  temp := head;
+  Result := nil;
+  while(temp <> nil) do
+  begin
+    if temp^.Info.Name = name then
+      Result:=temp;
+    temp := temp^.Adr;
+  end;
+end;
 
 procedure readContrFile(const head:TContrAdr);
 var
@@ -88,17 +101,23 @@ procedure insertContrList(const head: TContrAdr; name:string);
 var
   temp:TContrAdr;
 begin
-  temp := head;
-  while temp^.adr <> nil do
+  if (adrOf(head,name) = nil) then
   begin
-    temp := temp^.adr;
-  end;
-  new(temp^.adr);
-  temp:=temp^.adr;
-  temp^.adr:=nil;
-  temp^.Info.Name := name;
-  New(temp^.WorkersHead);
-  temp^.WorkersHead.Adr := nil;
+    temp := head;
+    while temp^.adr <> nil do
+    begin
+      temp := temp^.adr;
+    end;
+    new(temp^.adr);
+    temp:=temp^.adr;
+    temp^.adr:=nil;
+    temp^.Info.Name := name;
+    New(temp^.WorkersHead);
+    temp^.WorkersHead.Adr := nil;
+
+  end
+  else
+    writeln('The company is already registered');
 end;
 
 procedure writeContrList(var head:TContrAdr);
@@ -131,7 +150,6 @@ begin
   end;
   Writeln('Company not found');
 end;
-
 
 
 end.

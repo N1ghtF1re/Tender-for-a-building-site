@@ -42,14 +42,14 @@ begin
   readContrFile(ContrHead);
   writeContrList(contrHead);
   writeln;
-  {insertContrList(ContrHead, 'BrakhMen');
+  insertContrList(ContrHead, 'BrakhMen');
   insertContrList(ContrHead, 'HorusMen');
-  insertWorkListFromCompany(ContrHead, 'BrakhMen', 'Alexandr Pankratiew', 3000.45, 'Developer');
+  {insertWorkListFromCompany(ContrHead, 'BrakhMen', 'Alexandr Pankratiew', 3000.45, 'Developer');
   insertWorkListFromCompany(ContrHead, 'BrakhMen', 'Nikita Pilinko', 3000.451, 'Developer');
   insertWorkListFromCompany(ContrHead, 'BrakhMen', 'Kirill Holubeu', 3000.45, 'Developer');
-  }
-  //insertWorkListFromCompany(ContrHead, 'HorusMen', 'Paramonov Anton', 3.5, 'AI');
 
+  insertWorkListFromCompany(ContrHead, 'HorusMen', 'Paramonov Anton', 3.5, 'AI');
+  }
   writeContrList(contrHead);
   writeln;
 
