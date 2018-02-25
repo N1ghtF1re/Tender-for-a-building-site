@@ -77,5 +77,12 @@ object TenderForm: TTenderForm
         OnClick = mnWorkersListClick
       end
     end
+    object mnTender: TMenuItem
+      Caption = #1058#1077#1085#1076#1077#1088
+      object mnNewTender: TMenuItem
+        Caption = #1053#1086#1074#1099#1081' '#1090#1077#1085#1076#1077#1088
+        OnClick = mnNewTenderClick
+      end
+    end
   end
 end

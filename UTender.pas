@@ -8,7 +8,8 @@
 unit UTender;
 
 interface
-uses System.SysUtils, UObjects, UContractors, UWorkers;
+
+uses System.SysUtils, UObjects, UContractors, UWorkers, Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs;
 
 type
   TTenderInfo =
@@ -22,13 +23,17 @@ type
     info: TTenderInfo;
     adr: TTendAdr;
   end;
-procedure newTender(var N:integer;var TendHead:TTendAdr; const OHead: TObjAdr;const ContHead: TContrAdr; const obj: string);
-procedure writeTendList(const head:TTendAdr);
-procedure sortTenders(const head:TTendAdr);
+  TSortMode = function(r1, r2: TTenderInfo): Boolean;
+function newTender(var N:integer;var TendHead:TTendAdr; const OHead: TObjAdr;const ContHead: TContrAdr; const obj: string): integer;
+procedure writeTendList(Grid:TStringGrid; const head:TTendAdr);
+procedure sortTenders(const head:TTendAdr; mode: TSortMode);
+procedure removeTender(TendHead: TTendAdr);
+function field2sort (r1, r2: TTenderInfo): Boolean;
+function field3sort (r1, r2: TTenderInfo): Boolean;
 
 implementation
 
-procedure newTender(var N:integer;var TendHead:TTendAdr; const OHead: TObjAdr;const ContHead: TContrAdr; const obj: string);
+function newTender(var N:integer;var TendHead:TTendAdr; const OHead: TObjAdr;const ContHead: TContrAdr; const obj: string): integer;
 var
   ContTemp: TContrAdr;
   TendTemp: TTendAdr;
@@ -45,16 +50,18 @@ begin
     TendHead^.adr := nil;
     TendTemp := TendHead;
     ContTemp := ContHead^.adr;
+    Result := 0;
     while ContTemp <> nil do
     begin
       WorkTemp := ContTemp^.WorkersHead;
-
       Money:= 0;
       Workers := 0;
       while WorkTemp <> nil do
       begin
+
         if ( (WorkTemp^.Info.ObjType = obj) and (WorkTemp^.Info.Company = ContTemp^.Info.Name)) then
         begin
+          inc(Result);
           Inc(Workers);
           Inc(N);
           Money := money + WorkTemp^.Info.Salary;
@@ -72,15 +79,24 @@ begin
       end;
       ContTemp:= ContTemp^.adr;
     end;
-
   end
   else
   begin
-    writeln('Object not found');
+    Result := -1;
   end;
 end;
 
-procedure sortTenders(const head:TTendAdr);
+function field2sort (r1, r2: TTenderInfo): Boolean;
+begin
+   Result:= r1.Workers < r2.Workers;
+end;
+
+function field3sort (r1, r2: TTenderInfo): Boolean;
+begin
+   Result:= r1.Money < r2.Money;
+end;
+
+procedure sortTenders(const head:TTendAdr; mode: TSortMode);
 var
   i:integer;
   temp: TTendAdr;
@@ -93,7 +109,8 @@ begin
     temp2 := temp.adr;
     while temp2.adr <> nil do
     begin
-      if (temp2.adr^.info.Money < temp.adr^.info.Money) then
+      if (mode(temp2^.Adr.info, temp^.Adr.info)) then
+      //
       begin
 
         t1 := temp2^.adr;
@@ -103,7 +120,7 @@ begin
         t1 := temp^.adr^.adr;
         temp^.adr^.adr := temp2^.adr.adr;
         temp2^.adr^.adr := t1;
-        Writeln('kek');
+
         temp2 := temp;
       end;
       temp2 := temp2^.adr;
@@ -112,18 +129,39 @@ begin
   end;
 end;
 
-procedure writeTendList(const head:TTendAdr);
+procedure writeTendList(Grid:TStringGrid; const head:TTendAdr);
 var
   temp:TTendAdr;
 begin
-  Writeln('write tender list');
+  //ShowMessage('kek');
+  Grid.ColCount := 3;
+  Grid.RowCount := 2;
+  Grid.Cells[0,0] := 'Компания';
+  Grid.Cells[1,0] := 'Рабочих';
+  Grid.Cells[2,0] := 'Стоимость';
+  //Writeln('write tender list');
   temp := head^.adr;
   while temp <> nil do
   begin
-    writeln(temp^.info.Company);
-    writeln(temp^.INFO.Workers);
-    writeln(CurrToStr(temp^.INFO.Money));
+    Grid.Cells[0,Grid.RowCount - 1] := temp^.info.Company;
+    Grid.Cells[1,Grid.RowCount - 1] := IntToStr(temp^.INFO.Workers);
+    Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.Money) + ' $';
     temp:=temp^.adr;
+    Grid.RowCount := Grid.RowCount + 1;
+  end;
+  Grid.RowCount := Grid.RowCount - 1;
+end;
+
+procedure removeTender(TendHead: TTendAdr);
+var
+  temp, temp2: TTendAdr;
+begin
+  temp := TendHead;
+  while temp <> nil do
+  begin
+    temp2:=temp^.adr;
+    Dispose(temp);
+    temp := temp2;
   end;
 end;
 

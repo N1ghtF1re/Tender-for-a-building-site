@@ -9,7 +9,7 @@ unit UObjects;
 
 interface
 uses
-  Vcl.Forms,Vcl.Grids, Vcl.Graphics;
+  Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs;
 type
   { *** СПИСОК ОБЪЕКТОВ НАЧАЛО *** }
   TObjInfo = record    // Блок информации
@@ -34,7 +34,7 @@ function ObjAdrOf(head: TObjAdr; name: string):TObjAdr;
 
 implementation
 uses
- System.SysUtils,Vcl.Dialogs;
+ System.SysUtils;
 
 const
     ObjFile = 'objects.brakh'; // Файл объектов
@@ -45,10 +45,12 @@ function ObjAdrOf(head: TObjAdr; name: string):TObjAdr;
 var
   temp: TObjAdr;
 begin
+
   temp := head;
   Result := nil;
   while(temp <> nil) do
   begin
+    //ShowMessage(name + ' / ' + temp^.Info.obType);
     if temp^.Info.obType = name then
       Result:=temp;
     temp := temp^.Adr;
