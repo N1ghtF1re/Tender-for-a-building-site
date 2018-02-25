@@ -1,6 +1,16 @@
+{*******************************************************}
+{       WORKERS LIBRARY                                 }
+{       Lab π2. Dynamic Lists                           }
+{       Copyright (c) 2018 BSUIR                        }
+{       Created by Parnkratiew Alexandr                 }
+{                                                       }
+{*******************************************************}
 unit UWorkers;
 
 interface
+uses
+  Vcl.Forms,Vcl.Grids, Vcl.Graphics;
+
 type
  {  ***** —œ»—Œ  –¿¡Œ◊»’ Õ¿◊¿ÀŒ ***** }
     TWorkersInfo = record    // ¡ÎÓÍ ËÌÙÓÏ‡ˆËË
@@ -19,7 +29,7 @@ type
     WorkFile = 'workers.brakh';
 
 // œ–Œ÷≈ƒ”–€ » ‘”Õ ÷»»
-procedure writeWorkList(const head:TWorkAdr);
+procedure writeWorkList(Grid:TStringGrid; const head:TWorkAdr);
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
 procedure insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
         const Salary: Currency = 0; const ObjType: string = '1 Float House');
@@ -27,7 +37,7 @@ procedure saveWorkFile(const head:TWorkAdr);
 
 implementation
 
-  uses UContractors, System.SysUtils;
+  uses UContractors, System.SysUtils, UObjects;
 
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
 var
@@ -39,7 +49,7 @@ begin
   if fileExists(WorkFile) then
   begin
     Reset(f);
-    Writeln('Read file ' + WorkFile);
+    //Writeln('Read file ' + WorkFile);
     Temp := Head;
     while not EOF(f) do
     begin
@@ -58,7 +68,7 @@ begin
   else
   begin
     Rewrite(f);
-    Writeln('Create File');
+    //Writeln('Create File');
     close(f);
   end;
 end;
@@ -68,6 +78,8 @@ procedure insertWorkList(const head: TWorkAdr; const company:string; const Name:
 var
   temp:TWorkAdr;
 begin
+  //if ObjAdrOf(_new_lab2.ObjHead, ObjType) = nil then
+
   temp := head;
   while temp^.adr <> nil do
   begin
@@ -83,17 +95,24 @@ begin
 end;
 
 
-procedure writeWorkList(const head:TWorkAdr);
+procedure writeWorkList(Grid:TStringGrid; const head:TWorkAdr);
 var
   temp:TWorkAdr;
 begin
+  Grid.ColCount := 4;
+  Grid.Cells[0,0] := '‘»Œ';
+  Grid.Cells[1,0] := ' ÓÏÔ‡ÌËˇ';
+  Grid.Cells[2,0] := '«‡ÔÎ‡Ú‡';
+  Grid.Cells[3,0] := '“ËÔ Ó·˙ÂÍÚ‡';
   temp := head^.adr;
   while temp <> nil do
   begin
-    writeln(temp^.INFO.Name);
-    writeln(temp^.INFO.Salary);
-    writeln(temp^.INFO.ObjType);
+    Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
+    Grid.Cells[1,Grid.RowCount - 1] := temp^.Info.Company;
+    Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.Salary) +' $';
+    Grid.Cells[3,Grid.RowCount - 1] := temp^.Info.ObjType;
     temp:=temp^.adr;
+    Grid.RowCount := Grid.RowCount + 1;
   end;
 end;
 

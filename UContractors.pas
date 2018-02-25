@@ -1,7 +1,14 @@
+{*******************************************************}
+{       CONTRACTORS LIBRARY                             }
+{       Lab №2. Dynamic Lists                           }
+{       Copyright (c) 2018 BSUIR                        }
+{       Created by Parnkratiew Alexandr                 }
+{                                                       }
+{*******************************************************}
 unit UContractors;
 
 interface
-uses UWorkers;
+uses UWorkers, Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs;
 type
   { *** СПИСОК ПОДРЯДЧИКОВ НАЧАЛО *** }
   TContractorsInfo = record  // Блок информации
@@ -19,9 +26,12 @@ type
 procedure readContrFile(const head:TContrAdr);
 procedure saveContrFile(const head:TContrAdr);
 procedure insertContrList(const head: TContrAdr; name:string);
-procedure writeContrList(var head:TContrAdr);
+procedure writeContrList(Grid: TStringGrid;var head:TContrAdr);
 procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
         const Salary: Currency = 0; const ObjType: string = '1 Float House');
+function ContrAdrOf(const head: TContrAdr; name: string):TContrAdr;
+procedure writeWorkListWithContr(Grid: TStringGrid;var head:TContrAdr; const company:string);
+procedure writeAllWorkListWithContr(Grid: TStringGrid;var head:TContrAdr);
 
 implementation
 uses
@@ -29,7 +39,9 @@ uses
 const
   ContrFile = 'contractors.brakh';
 
-function adrOf(head: TContrAdr; name: string):TContrAdr;
+{ Функция ContrAdrOf возвращает адрес элемента списка с нужным полем name
+  Если значение не найдено, возвращается nil }
+function ContrAdrOf(const head: TContrAdr; name: string):TContrAdr;
 var
   temp: TContrAdr;
 begin
@@ -43,6 +55,7 @@ begin
   end;
 end;
 
+{ Читаем из типизированного файла записи и создаем список }
 procedure readContrFile(const head:TContrAdr);
 var
   f: file of TContractorsInfo;
@@ -52,7 +65,7 @@ begin
   if fileExists(ContrFile) then
   begin
     Reset(f);
-    Writeln('Read file ' + ContrFile);
+    //Writeln('Read file ' + ContrFile);
     Temp := Head;
     while not EOF(f) do
     begin
@@ -63,19 +76,20 @@ begin
       new(Temp^.WorkersHead);
       Temp^.WorkersHead.Adr := nil;
       readFromFileWithContractors(temp^.WorkersHead, temp^.Info.Name);
-      //OTemp^.Info
+      // Читаем из файла работников подрядчика
     end;
     close(f);
   end
   else
   begin
     Rewrite(f);
-    Writeln('Create File');
+    //Writeln('Create File');
     close(f);
   end;
 
 end;
 
+{ Сохраняем список в типизированный файл}
 procedure saveContrFile(const head:TContrAdr);
 var
   f: file of TContractorsInfo;
@@ -101,7 +115,7 @@ procedure insertContrList(const head: TContrAdr; name:string);
 var
   temp:TContrAdr;
 begin
-  if (adrOf(head,name) = nil) then
+  if (ContrAdrOf(head,name) = nil) then
   begin
     temp := head;
     while temp^.adr <> nil do
@@ -117,20 +131,29 @@ begin
 
   end
   else
-    writeln('The company is already registered');
+    ShowMessage('The company is already registered');
 end;
 
-procedure writeContrList(var head:TContrAdr);
+procedure writeContrList(Grid: TStringGrid;var head:TContrAdr);
 var
   temp:TContrAdr;
 begin
+  Grid.ColCount := 2;
+  Grid.RowCount := 2;
+  Grid.Cells[0,0] := 'Компания';
+  Grid.Cells[1,0] := '';
   temp := head^.adr;
   while temp <> nil do
   begin
-    writeln(temp^.INFO.Name);
-    writeWorkList(temp^.WorkersHead);  // ИЗ юнита UWORKERS
+    Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
+    Grid.Cells[1,Grid.RowCount - 1] := 'Показать сотрудников';
     temp:=temp^.adr;
+    Grid.RowCount := Grid.RowCount + 1;
+    {writeln(temp^.INFO.Name);
+    writeWorkList(temp^.WorkersHead);  // ИЗ юнита UWORKERS
+    temp:=temp^.adr; }
   end;
+  Grid.RowCount := Grid.RowCount - 1;
 end;
 
 procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
@@ -148,8 +171,42 @@ begin
     end;
     temp:=temp^.Adr;
   end;
-  Writeln('Company not found');
+  ShowMessage('Company not found');
 end;
 
+
+procedure writeWorkListWithContr(Grid: TStringGrid;var head:TContrAdr; const company:string);
+var
+  temp:TContrAdr;
+begin
+  Grid.RowCount := 2;
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+
+    if temp^.Info.Name = company then
+    begin
+      WriteWorkList(Grid, temp^.WorkersHead);
+      Grid.RowCount := Grid.RowCount - 1;
+      exit;
+    end;
+    temp := temp^.Adr;
+  end;
+
+end;
+
+procedure writeAllWorkListWithContr(Grid: TStringGrid;var head:TContrAdr);
+var
+  temp:TContrAdr;
+begin
+  Grid.RowCount := 2;
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    WriteWorkList(Grid, temp^.WorkersHead);
+    temp := temp^.Adr;
+  end;
+  Grid.RowCount := Grid.RowCount - 1;
+end;
 
 end.

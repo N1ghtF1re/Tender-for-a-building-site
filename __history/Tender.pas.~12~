@@ -1,0 +1,60 @@
+unit Tender;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Menus, Vcl.Grids,UObjects, UWorkers, UContractors, UTender;
+
+type
+  mode = (ObjList, ContrList, WorkList);
+  TTenderForm = class(TForm)
+    pnlMain: TPanel;
+    mm: TMainMenu;
+    mnFile: TMenuItem;
+    mnLists: TMenuItem;
+    ListTable: TStringGrid;
+    procedure FormCreate(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+  private
+  public
+    { Public declarations }
+  end;
+
+var
+  TenderForm: TTenderForm;
+  ObjHead:TObjAdr;
+  TendHead: TTendAdr;
+  ContHead: TContrAdr;
+
+implementation
+
+
+
+{$R *.dfm}
+
+procedure createLists;
+begin
+  New(ObjHead);
+  ObjHead.Adr := nil;
+
+  new(ContHead);
+  ContHead.WorkersHead := nil;
+  ContHead.Adr := nil;
+end;
+
+procedure TTenderForm.FormCreate(Sender: TObject);
+begin
+  createLists;
+  readObjFile(ObjHead);
+  readContrFile(ContHead);
+  writeObjList(ListTable, ObjHead);
+  writeContrList(ListTable, ContHead);
+end;
+
+procedure TTenderForm.FormResize(Sender: TObject);
+begin
+  ListTable.DefaultColWidth := Trunc( pnlMain.Width / (ListTable.ColCount)) - 3;
+end;
+
+end.

@@ -109,6 +109,7 @@
         <DCCReference Include="UObjects.pas"/>
         <DCCReference Include="UWorkers.pas"/>
         <DCCReference Include="UContractors.pas"/>
+        <DCCReference Include="UTender.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
