@@ -43,7 +43,7 @@ begin
   writeContrList(contrHead);
   writeln;
   {insertContrList(ContrHead, 'BrakhMen');
-  insertContrList(ContrHead, 'HorusMen');}
+  insertContrList(ContrHead, 'HorusMen');    }
   writeContrList(contrHead);
   writeln;
   saveContrFile(ContrHead);

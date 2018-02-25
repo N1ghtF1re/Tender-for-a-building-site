@@ -1,33 +1,31 @@
-program _new_lab2;
+unit UObjects;
 
-{$APPTYPE CONSOLE}
-
-{$R *.res}
-
-uses
-  System.SysUtils;
-
+interface
 type
-  TObjects = (House1FL, House2FL, House3FL, TradingHouse, Bridge, AutoRoad, Railway);
-  TObjInfo = record
-    obType:TObjects;
-    Workers:integer;
-    MatCost:Currency;
+  { *** СПИСОК ОБЪЕКТОВ НАЧАЛО *** }
+  TObjInfo = record    // Блок информации
+    obType:string[30];  // Тип объекта
+    Workers:integer;    // Минимальное количество рабочих
+    MatCost:Currency;   // Стоимость материалов
   end;
-  TObjAdr = ^TObjList;
-  TObjList = record
+  TObjAdr = ^TObjList; // Ссылка на Список Объектов
+  TObjList = record    // Список Объектов
     Info: TObjInfo;
     Adr: TObjAdr;
   end;
-  const
-    ObjFile = 'objects.brakh';
-var
-  ObjHead:TObjAdr;
-  //TObjects
+  { *** СПИСОК ОБЪЕКТОВ КОНЕЦ  *** }
 
+procedure readObjFile(head:TObjAdr);
+procedure saveObjFile(var head:TObjAdr);
+procedure insertObjList(var head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
+procedure writeObjList(var head:TObjAdr);
 
-
-procedure readObjFile;
+implementation
+uses
+  System.SysUtils;
+const
+    ObjFile = 'objects.brakh'; // Файл объектов
+procedure readObjFile(head:TObjAdr);
 var
   f: file of TObjInfo;
   OTemp: TObjAdr;
@@ -37,7 +35,7 @@ begin
   begin
     Reset(f);
     Writeln('Read file');
-    OTemp := ObjHead;
+    OTemp := Head;
     while not EOF(f) do
     begin
       new(OTemp^.adr);
@@ -57,7 +55,6 @@ begin
   end;
 
 end;
-
 procedure saveObjFile(var head:TObjAdr);
 var
   f: file of TObjInfo;
@@ -73,8 +70,7 @@ begin
   end;
   close(F);
 end;
-
-procedure insertObjList(var head: TObjAdr; tp:TObjects = House1FL; wk:integer = 0; mc:Currency = 0);
+procedure insertObjList(var head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
 var
   temp:TObjAdr;
 begin
@@ -90,33 +86,18 @@ begin
   temp^.Info.Workers := wk;
   temp^.Info.MatCost := mc;
 end;
-
-procedure writeList(var head:TObjAdr);
+procedure writeObjList(var head:TObjAdr);
 var
   temp:TObjAdr;
 begin
   temp := head^.adr;
   while temp <> nil do
   begin
-    writeln(ord(temp^.INFO.obType));
+    writeln(temp^.INFO.obType);
     writeln(temp^.INFO.Workers);
-    writeln(temp^.INFO.MatCost);
+    writeln(CurrToStr(temp^.INFO.MatCost));
     temp:=temp^.adr;
   end;
 end;
 
-begin
-  new(ObjHead);
-  ObjHead^.adr := nil;
-  readObjFile;
-  writeln;
-  writeList(objHead);
-  writeln;
-
-  insertObjList(ObjHead);
-  insertObjList(ObjHead, TradingHouse, 45, 885);
-  writeList(objHead);
-  saveObjFile(objHead);
-
-  readln;
 end.

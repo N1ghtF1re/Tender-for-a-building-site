@@ -27,7 +27,7 @@ begin
   new(ContrHead);
 
 
-  {ObjHead^.adr := nil;
+  ObjHead^.adr := nil;
   readObjFile(ObjHead);
   writeln;
   writeObjList(objHead);
@@ -36,17 +36,17 @@ begin
  // insertObjList(ObjHead);
  // insertObjList(ObjHead,'Trading House', 45, 885);
   writeObjList(objHead);
-  saveObjFile(objHead);    }
+  saveObjFile(objHead);
 
   Writeln('Contr: ');
   readContrFile(ContrHead);
   writeContrList(contrHead);
   writeln;
-  {insertContrList(ContrHead, 'BrakhMen');
-  insertContrList(ContrHead, 'HorusMen');}
+  insertContrList(ContrHead, 'BrakhMen');
+  insertContrList(ContrHead, 'HorusMen');
   writeContrList(contrHead);
   writeln;
-  saveContrFile(ContrHead);
+
 
   readln;
 end.

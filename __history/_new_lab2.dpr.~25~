@@ -42,11 +42,11 @@ begin
   readContrFile(ContrHead);
   writeContrList(contrHead);
   writeln;
-  {insertContrList(ContrHead, 'BrakhMen');
-  insertContrList(ContrHead, 'HorusMen');}
+  insertContrList(ContrHead, 'BrakhMen');
+  insertContrList(ContrHead, 'HorusMen');
   writeContrList(contrHead);
   writeln;
-  saveContrFile(ContrHead);
+
 
   readln;
 end.

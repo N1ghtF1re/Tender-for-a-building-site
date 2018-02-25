@@ -1,0 +1,41 @@
+unit UWorkers;
+
+interface
+type
+ {  ***** СПИСОК РАБОЧИХ НАЧАЛО ***** }
+    TWorkersInfo = record    // Блок информации
+      Name: string[30];        // ФИО Рабочего
+      Company: string[30];     // Компания, в которой он работает (Подрядчик)
+      Salary:Currency;         // Зарплата
+      ObjType: string[30];     // Тип объекта, которым он может заниматься
+    end;
+    TWorkAdr = ^TWorkersList;// Ссылка на список рабочих
+    TWorkersList = record    // Список рабочих
+      Info: TWorkersInfo;      // Блок информации
+      Adr: TWorkAdr;           // Адрес след элемент списка
+    end;
+    {  ***** СПИСОК РАБОЧИХ КОНЕЦ ***** }
+
+// ПРОЦЕДУРЫ И ФУНКЦИИ
+procedure writeWorkList(var head:TWorkAdr);
+
+implementation
+  uses UContractors;
+  const
+    WorkFile = 'workers.brakh';
+
+
+procedure writeWorkList(var head:TWorkAdr);
+var
+  temp:TWorkAdr;
+begin
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    writeln(temp^.INFO.Name);
+    writeln(temp^.INFO.Salary);
+    writeln(temp^.INFO.ObjType);
+    temp:=temp^.adr;
+  end;
+end;
+end.

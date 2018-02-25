@@ -1,27 +1,11 @@
-{*******************************************************}
-{                                                       }
-{       Lab №2. Dynamic Lists                           }
-{       Copyright (c) 2018 BSUIR                        }
-{       Created by Parnkratiew Alexandr                 }
-{                                                       }
-{*******************************************************}
+unit UObjects;
 
-program _new_lab2;
-
-{$APPTYPE CONSOLE}
-
-{$R *.res}
-
-uses
-  System.SysUtils;
-
+interface
 type
-  //TObjects = (House1FL, House2FL, House3FL, TradingHouse, Bridge, AutoRoad, Railway);
-
-  // СПИСОК ОБЪЕКТОВ НАЧАЛО
+  { *** СПИСОК ОБЪЕКТОВ НАЧАЛО *** }
   TObjInfo = record    // Блок информации
     obType:string[30];  // Тип объекта
-    Workers:integer;    // Количество рабочих
+    Workers:integer;    // Минимальное количество рабочих
     MatCost:Currency;   // Стоимость материалов
   end;
   TObjAdr = ^TObjList; // Ссылка на Список Объектов
@@ -29,16 +13,21 @@ type
     Info: TObjInfo;
     Adr: TObjAdr;
   end;
-  // СПИСОК ОБЪЕКТОВ КОНЕЦ
-  const
+  { *** СПИСОК ОБЪЕКТОВ КОНЕЦ  *** }
+
+// ПРОЦЕДУРЫ И ФУНКЦИИ
+
+procedure readObjFile(const head:TObjAdr);
+procedure saveObjFile(const head:TObjAdr);
+procedure insertObjList(const head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
+procedure writeObjList(const head:TObjAdr);
+
+implementation
+uses
+  System.SysUtils;
+const
     ObjFile = 'objects.brakh'; // Файл объектов
-var
-  ObjHead:TObjAdr;
-  //TObjects
-
-
-
-procedure readObjFile;
+procedure readObjFile(const head:TObjAdr);
 var
   f: file of TObjInfo;
   OTemp: TObjAdr;
@@ -47,8 +36,8 @@ begin
   if fileExists(ObjFile) then
   begin
     Reset(f);
-    Writeln('Read file');
-    OTemp := ObjHead;
+    Writeln('Read file ' + ObjFile);
+    OTemp := Head;
     while not EOF(f) do
     begin
       new(OTemp^.adr);
@@ -68,8 +57,7 @@ begin
   end;
 
 end;
-
-procedure saveObjFile(var head:TObjAdr);
+procedure saveObjFile(const head:TObjAdr);
 var
   f: file of TObjInfo;
   temp: TObjAdr;
@@ -84,8 +72,7 @@ begin
   end;
   close(F);
 end;
-
-procedure insertObjList(var head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
+procedure insertObjList(const head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
 var
   temp:TObjAdr;
 begin
@@ -101,8 +88,7 @@ begin
   temp^.Info.Workers := wk;
   temp^.Info.MatCost := mc;
 end;
-
-procedure writeList(var head:TObjAdr);
+procedure writeObjList(const head:TObjAdr);
 var
   temp:TObjAdr;
 begin
@@ -111,25 +97,9 @@ begin
   begin
     writeln(temp^.INFO.obType);
     writeln(temp^.INFO.Workers);
-    writeln(temp^.INFO.MatCost);
+    writeln(CurrToStr(temp^.INFO.MatCost));
     temp:=temp^.adr;
   end;
 end;
 
-begin
-  new(ObjHead);
-  ObjHead^.adr := nil;
-  readObjFile;
-  writeln;
-  writeList(objHead);
-  writeln;
-
-  insertObjList(ObjHead);
-  insertObjList(ObjHead,'Trading House', 45, 885);
-  writeList(objHead);
-  saveObjFile(objHead);
-
-
-
-  readln;
 end.
