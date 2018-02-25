@@ -15,12 +15,54 @@ type
       Adr: TWorkAdr;           // Àäğåñ ñëåä ıëåìåíò ñïèñêà
     end;
     {  ***** ÑÏÈÑÎÊ ĞÀÁÎ×ÈÕ ÊÎÍÅÖ ***** }
+
+// ÏĞÎÖÅÄÓĞÛ È ÔÓÍÊÖÈÈ
 procedure writeWorkList(var head:TWorkAdr);
+procedure readFromFileWithContractors(head: TWorkAdr; contr: string);
+
 implementation
-  uses UContractors;
+  uses UContractors, System.SysUtils;
   const
     WorkFile = 'workers.brakh';
 
+procedure readFromFileWithContractors(head: TWorkAdr; contr: string);
+var
+  f: file of TWorkersInfo;
+  Temp: TWorkAdr;
+  TInfo: TWorkersInfo;
+begin
+  AssignFile(f, WorkFile);
+  if fileExists(WorkFile) then
+  begin
+    Reset(f);
+    Writeln('Read file ' + WorkFile);
+    Temp := Head;
+    while not EOF(f) do
+    begin
+      read(f, TInfo);
+      if (TInfo.Company = contr) then
+      begin
+        new(Temp^.adr);
+        Temp:=Temp^.adr;
+        Temp^.adr:=nil;
+        Temp^.Info := TInfo;
+      end;
+    end;
+
+    close(f);
+  end
+  else
+  begin
+    Rewrite(f);
+    Writeln('Create File');
+    close(f);
+  end;
+end;
+
+procedure insertWorkList();
+begin
+
+end;
 
 procedure writeWorkList(var head:TWorkAdr);
 var

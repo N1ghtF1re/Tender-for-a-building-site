@@ -15,19 +15,15 @@ type
       Adr: TWorkAdr;           // ¿‰ÂÒ ÒÎÂ‰ ˝ÎÂÏÂÌÚ ÒÔËÒÍ‡
     end;
     {  ***** —œ»—Œ  –¿¡Œ◊»’  ŒÕ≈÷ ***** }
-  const
-    WorkFile = 'workers.brakh';
 
 // œ–Œ÷≈ƒ”–€ » ‘”Õ ÷»»
 procedure writeWorkList(const head:TWorkAdr);
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
-procedure insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House');
-procedure saveWorkFile(const head:TWorkAdr);
 
 implementation
-
   uses UContractors, System.SysUtils;
+  const
+    WorkFile = 'workers.brakh';
 
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
 var
@@ -63,8 +59,8 @@ begin
   end;
 end;
 
-procedure insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+procedure insertWorkList(const head: TWorkAdr; company:string; Name:string;
+        Salary: Currency = 0; ObjType: string = '1 Float House');
 var
   temp:TWorkAdr;
 begin
@@ -79,9 +75,7 @@ begin
   temp^.Info.Name := name;
   temp^.Info.Company := company;
   temp^.Info.Salary := Salary;
-  temp^.Info.ObjType := ObjType;
 end;
-
 
 procedure writeWorkList(const head:TWorkAdr);
 var
@@ -95,23 +89,5 @@ begin
     writeln(temp^.INFO.ObjType);
     temp:=temp^.adr;
   end;
-end;
-
-procedure saveWorkFile(const head:TWorkAdr);
-var
-  f: file of TWorkersInfo;
-  temp: TWorkAdr;
-begin
-  AssignFile(f, WorkFile);
-  Reset(f);
-  Seek(f,FileSize(f));
-
-  temp := head^.adr;
-  while temp <> nil do
-  begin
-    write(f, temp^.Info);
-    temp:=temp^.adr;
-  end;
-  close(F);
 end;
 end.

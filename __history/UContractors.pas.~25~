@@ -4,7 +4,6 @@ interface
 uses UWorkers;
 type
   { *** СПИСОК ПОДРЯДЧИКОВ НАЧАЛО *** }
-
   TContractorsInfo = record  // Блок информации
     Name:string[30];            // Название подрядчика
   end;
@@ -12,7 +11,7 @@ type
   TContractorsList = record  // Список подрядчиков
     Info: TContractorsInfo;    // Блок информации
     WorkersHead: TWorkAdr;     // Ссылка на голову списка рабочих этой компании
-    Adr: TContrAdr             // Адрес след. элемента в списке
+    Adr: TContrAdr;            // Адрес след. элемента в списке
   end;
   { *** СПИСОК ПОДРЯДЧИКОВ КОНЕЦ *** }
 
@@ -20,6 +19,9 @@ type
 procedure readContrFile(const head:TContrAdr);
 procedure saveContrFile(const head:TContrAdr);
 procedure insertContrList(const head: TContrAdr; name:string);
+procedure writeContrList(var head:TContrAdr);
+procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House');
 
 implementation
 uses
@@ -89,9 +91,11 @@ begin
   temp:=temp^.adr;
   temp^.adr:=nil;
   temp^.Info.Name := name;
+  New(temp^.WorkersHead);
+  temp^.WorkersHead.Adr := nil;
 end;
 
-procedure writeObjList(var head:TContrAdr);
+procedure writeContrList(var head:TContrAdr);
 var
   temp:TContrAdr;
 begin
@@ -102,6 +106,24 @@ begin
     writeWorkList(temp^.WorkersHead);  // ИЗ юнита UWORKERS
     temp:=temp^.adr;
   end;
+end;
+
+procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+var
+  temp:TContrAdr;
+begin
+  temp := head;
+  while temp^.Info <> nil do
+  begin
+    if (temp^.Info.Name = company) then
+    begin
+      insertWorkList(temp^.WorkersHead, company, Name, Salary, ObjType);
+      Exit;
+    end;
+    temp:=temp^.Adr;
+  end;
+  Writeln('Company not found');
 end;
 
 end.

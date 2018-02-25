@@ -23,7 +23,6 @@ procedure writeWorkList(const head:TWorkAdr);
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
 procedure insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
         const Salary: Currency = 0; const ObjType: string = '1 Float House');
-procedure saveWorkFile(const head:TWorkAdr);
 
 implementation
 
@@ -105,7 +104,7 @@ begin
   AssignFile(f, WorkFile);
   Reset(f);
   Seek(f,FileSize(f));
-
+  rewrite(f);
   temp := head^.adr;
   while temp <> nil do
   begin

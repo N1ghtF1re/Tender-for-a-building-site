@@ -4,7 +4,6 @@ interface
 uses UWorkers;
 type
   { *** СПИСОК ПОДРЯДЧИКОВ НАЧАЛО *** }
-
   TContractorsInfo = record  // Блок информации
     Name:string[30];            // Название подрядчика
   end;
@@ -12,7 +11,7 @@ type
   TContractorsList = record  // Список подрядчиков
     Info: TContractorsInfo;    // Блок информации
     WorkersHead: TWorkAdr;     // Ссылка на голову списка рабочих этой компании
-    Adr: TContrAdr             // Адрес след. элемента в списке
+    Adr: TContrAdr;            // Адрес след. элемента в списке
   end;
   { *** СПИСОК ПОДРЯДЧИКОВ КОНЕЦ *** }
 
@@ -20,6 +19,7 @@ type
 procedure readContrFile(const head:TContrAdr);
 procedure saveContrFile(const head:TContrAdr);
 procedure insertContrList(const head: TContrAdr; name:string);
+procedure writeContrList(var head:TContrAdr);
 
 implementation
 uses
@@ -76,7 +76,7 @@ begin
   close(F);
 end;
 
-procedure insertContrList(const head: TContrAdr; name:string[30]);
+procedure insertContrList(const head: TContrAdr; name:string);
 var
   temp:TContrAdr;
 begin
@@ -89,9 +89,11 @@ begin
   temp:=temp^.adr;
   temp^.adr:=nil;
   temp^.Info.Name := name;
+  New(temp^.WorkersHead);
+  temp^.WorkersHead.Adr := nil;
 end;
 
-procedure writeObjList(var head:TContrAdr);
+procedure writeContrList(var head:TContrAdr);
 var
   temp:TContrAdr;
 begin
