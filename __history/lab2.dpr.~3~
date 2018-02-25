@@ -1,0 +1,46 @@
+program lab2;
+
+{$APPTYPE CONSOLE}
+
+{$R *.res}
+
+uses
+  System.SysUtils;
+
+type TInf = record
+  name: String[100];
+  GR: string[6];
+  Oaip:integer;
+  const OKT = 0;
+  end;
+  TADR = ^TSP;
+  TSP = record
+    INF: TINF;
+    adr:TADR;
+  end;
+
+  var
+    Head, temp:TADR;
+    temp2: TADR;
+    i:integer;
+
+procedure addList;
+begin
+
+end;
+
+begin
+  new(Head);
+  Head^.adr := nil;
+  temp := head;
+  for i := 1 to 3 do
+  begin
+    new(temp^.adr);
+    temp:=temp^.adr;
+    temp^.adr:=nil;
+    readln(temp^.adr.INF.name);
+  end;
+
+  readln(i);
+
+end.

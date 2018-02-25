@@ -1,0 +1,62 @@
+program _new_lab2;
+
+{$APPTYPE CONSOLE}
+
+{$R *.res}
+
+uses
+  System.SysUtils;
+
+type
+  TObjects = (House1FL, House2FL, House3FL, TradingHouse, Bridge, AutoRoad, Railway);
+  TObjInfo = record
+    obType:TObjects;
+    Workers:integer;
+    MatCost:Currency;
+  end;
+  TObjAdr = ^TObjList;
+  TObjList = record
+    Info: TObjInfo;
+    Adr: TObjAdr;
+  end;
+  const
+    ObjFile = 'objects.brakh';
+var
+  ObjHead:TObjAdr;
+  //TObjects
+
+
+
+procedure readFile;
+var
+  TempObjInfo:TObjInfo;
+  f: file of TObjInfo;
+  OTemp: TObjAdr;
+begin
+  AssignFile(f, ObjFile);
+  if FileExists(ObjFile) then
+  begin
+    Reset(f);
+    OTemp := ObjHead;
+    while not EOF(f) do
+    begin
+      new(OTemp^.adr);
+      OTemp:=OTemp^.adr;
+      OTemp^.adr:=nil;
+      readln(f, TempObjInfo);
+      //OTemp^.Info
+    end;
+  end
+  else
+  begin
+    Rewrite(f);
+  end;
+
+end;
+
+begin
+  new(ObjHead);
+  ObjHead^.adr := nil;
+
+  readFile;
+end.

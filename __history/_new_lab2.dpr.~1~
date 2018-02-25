@@ -1,0 +1,28 @@
+program _new_lab2;
+
+{$APPTYPE CONSOLE}
+
+{$R *.res}
+
+uses
+  System.SysUtils;
+
+type
+  TObjects = (House1FL, House2FL, House3FL, TradingHouse, Bridge, AutoRoad, Railway);
+  TObjInfo = record
+    obType:TObjects;
+    Workers:integer;
+    MatCost:Currency;
+  end;
+  TObjAdr = ^TObjList;
+  TObjList = record
+    ObjectInfo: TObjInfo;
+    ObjAdr: TObjAdr;
+  end;
+
+var
+  ObjHead:TObjAdr;
+  //TObjects
+begin
+
+end.
