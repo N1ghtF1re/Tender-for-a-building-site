@@ -8,7 +8,7 @@
 unit UContractors;
 
 interface
-uses UWorkers, Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs;
+uses UWorkers, Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs, Vcl.StdCtrls;
 type
   { *** СПИСОК ПОДРЯДЧИКОВ НАЧАЛО *** }
   TContractorsInfo = record  // Блок информации
@@ -24,6 +24,10 @@ type
 
 // ПРОЦЕДУРЫ И ФУНКЦИИ
 procedure readContrFile(const head:TContrAdr);
+function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string):TWorkAdr;
+procedure removeWorkList(var head:TContrAdr; const el:string);
+procedure editContrList(head:TContrAdr; name:string; newname:string);
+procedure removeContrList(var head:TContrAdr; const el:string);
 procedure saveContrFile(const head:TContrAdr);
 procedure insertContrList(const head: TContrAdr; name:string);
 procedure writeContrList(Grid: TStringGrid;var head:TContrAdr);
@@ -32,6 +36,8 @@ procedure insertWorkListFromCompany(const head: TContrAdr; const company:string;
 function ContrAdrOf(const head: TContrAdr; name: string):TContrAdr;
 procedure writeWorkListWithContr(Grid: TStringGrid;var head:TContrAdr; const company:string);
 procedure writeAllWorkListWithContr(Grid: TStringGrid;var head:TContrAdr);
+procedure getCBBContrList(CBB: TComboBox; const head: TContrAdr);
+procedure editWorkList(const head:TContrAdr; const name:string; const comp:string; const newname, newcomp, newobj:string; const newsalary: Currency);
 
 implementation
 uses
@@ -66,6 +72,8 @@ begin
   begin
     Reset(f);
     //Writeln('Read file ' + ContrFile);
+    Head^.Adr := nil;
+    head^.WorkersHead := nil;
     Temp := Head;
     while not EOF(f) do
     begin
@@ -138,7 +146,7 @@ procedure writeContrList(Grid: TStringGrid;var head:TContrAdr);
 var
   temp:TContrAdr;
 begin
-  Grid.ColCount := 2;
+  Grid.ColCount := 3;
   Grid.RowCount := 2;
   Grid.Cells[0,0] := 'Компания';
   Grid.Cells[1,0] := '';
@@ -147,6 +155,7 @@ begin
   begin
     Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
     Grid.Cells[1,Grid.RowCount - 1] := 'Показать сотрудников';
+    Grid.Cells[2,Grid.RowCount - 1] := 'Удалить';
     temp:=temp^.adr;
     Grid.RowCount := Grid.RowCount + 1;
     {writeln(temp^.INFO.Name);
@@ -209,4 +218,125 @@ begin
   Grid.RowCount := Grid.RowCount - 1;
 end;
 
+procedure getCBBContrList(CBB: TComboBox; const head: TContrAdr);
+var
+  temp:TContrAdr;
+begin
+  CBB.Clear;
+  CBB.Text := 'Выбрать компанию';
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    CBB.Items.Add(temp^.Info.Name);
+    temp:=temp^.adr;
+  end;
+end;
+
+procedure removeContrList(var head:TContrAdr; const el:string);
+var
+  temp,temp2:TContrAdr;
+begin
+  temp := head;
+  while temp^.adr <> nil do
+  begin
+    temp2 := temp^.adr;
+    if temp2^.Info.Name = el then
+    begin
+      temp^.adr := temp2^.adr;
+      dispose(temp2);
+    end
+    else
+      temp:= temp^.adr;
+  end;
+end;
+
+procedure removeWorkList(var head:TContrAdr; const el:string);
+var
+  t:TContrAdr;
+  temp,temp2:TWorkAdr;
+begin
+  t:=head^.Adr;
+  while t <> nil do
+  begin
+    temp := t.WorkersHead;
+    while temp^.adr <> nil do
+    begin
+      temp2 := temp^.adr;
+      if temp2^.Info.Name = el then
+      begin
+        temp^.adr := temp2^.adr;
+        dispose(temp2);
+      end
+      else
+        temp:= temp^.adr;
+    end;
+    t:=t^.Adr;
+  end;
+end;
+
+function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string):TWorkAdr;
+var
+  t:TContrAdr;
+  temp:TWorkAdr;
+begin
+  t:=head^.Adr;
+  Result := nil;
+  while t <> nil do
+  begin
+    temp := t.WorkersHead;
+    while temp <> nil do
+    begin
+      if (temp^.Info.Name = name) and (temp^.Info.Company= comp) then
+      begin
+        Result := temp;
+        Exit;
+      end;
+
+      temp:= temp^.adr;
+    end;
+    t:=t^.Adr;
+  end;
+end;
+
+procedure editContrList(head:TContrAdr; name:string; newname:string);
+var
+  temp:TContrAdr;
+begin
+  temp:= head;
+  while temp <> nil do
+  begin
+    if temp.Info.Name = name then
+    begin
+      temp.Info.Name := newname;
+      exit;
+    end;
+    temp := temp^.Adr;
+  end;
+end;
+
+procedure editWorkList(const head:TContrAdr; const name:string; const comp:string; const newname, newcomp, newobj:string; const newsalary: Currency);
+var
+  t:TContrAdr;
+  temp:TWorkAdr;
+begin
+  t:=head^.Adr;
+  while t <> nil do
+  begin
+    temp := t.WorkersHead;
+    while temp <> nil do
+    begin
+      if (temp^.Info.Name = name) and (temp^.Info.Company= comp) then
+      begin
+        temp^.Info.Name := newname;
+        temp^.Info.Company := newcomp;
+        temp^.Info.Salary := newsalary;
+        temp^.Info.ObjType := newobj;
+        Exit;
+      end;
+
+      temp:= temp^.adr;
+    end;
+    t:=t^.Adr;
+  end;
+end;
 end.

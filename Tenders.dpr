@@ -6,7 +6,8 @@ uses
   UObjects in 'UObjects.pas',
   UWorkers in 'UWorkers.pas',
   UContractors in 'UContractors.pas',
-  UTender in 'UTender.pas';
+  UTender in 'UTender.pas',
+  AddList in 'AddList.pas' {AddListForm};
 
 {$R *.res}
 
@@ -14,5 +15,6 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TTenderForm, TenderForm);
+  Application.CreateForm(TAddListForm, AddListForm);
   Application.Run;
 end.

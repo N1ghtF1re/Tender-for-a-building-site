@@ -9,7 +9,7 @@ unit UObjects;
 
 interface
 uses
-  Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs;
+  Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs, Vcl.StdCtrls;
 type
   { *** ÑÏÈÑÎÊ ÎÁÚÅÊÒÎÂ ÍÀ×ÀËÎ *** }
   TObjInfo = record    // Áëîê èíôîğìàöèè
@@ -25,12 +25,14 @@ type
   { *** ÑÏÈÑÎÊ ÎÁÚÅÊÒÎÂ ÊÎÍÅÖ  *** }
 
 // ÏĞÎÖÅÄÓĞÛ È ÔÓÍÊÖÈÈ
-
+procedure getCBBObjectsList(CBB: TComboBox; const head: TObjAdr);
 procedure readObjFile(const head:TObjAdr);
 procedure saveObjFile(const head:TObjAdr);
+procedure removeObjList(var head:TObjAdr; const el:string);
 procedure insertObjList(const head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
 procedure writeObjList(Grid:TStringGrid; const head:TObjAdr);
 function ObjAdrOf(head: TObjAdr; name: string):TObjAdr;
+procedure editObjList(head:TObjAdr; name:string; newname:string; newwork: integer; newmoney: Currency );
 
 implementation
 uses
@@ -71,6 +73,7 @@ begin
     Reset(f);
     //Writeln('Read file ' + ObjFile);
     OTemp := Head;
+    head^.Adr := nil;
     while not EOF(f) do
     begin
       new(OTemp^.adr);
@@ -130,7 +133,7 @@ procedure writeObjList(Grid:TStringGrid; const head:TObjAdr);
 var
   temp:TObjAdr;
 begin
-  Grid.ColCount := 3;
+  Grid.ColCount := 4;
   Grid.RowCount := 2;
   Grid.Font.Color:= clWhite;
   Grid.Cells[0,0] := 'Òèï îáúåêòà';
@@ -143,11 +146,62 @@ begin
   begin
     Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.obType;
     Grid.Cells[1,Grid.RowCount - 1] := IntToStr(temp^.INFO.Workers);
-    Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.MatCost) + ' $';
+    Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.MatCost);
+    Grid.Cells[3,Grid.RowCount - 1] := 'Óäàëèòü';
     temp:=temp^.adr;
     Grid.RowCount := Grid.RowCount + 1;
   end;
   Grid.RowCount := Grid.RowCount - 1;
+end;
+
+procedure getCBBObjectsList(CBB: TComboBox; const head: TObjAdr);
+var
+  temp:TObjAdr;
+begin
+  CBB.Clear;
+  CBB.Text := 'Âûáğàòü îáúåêò';
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    CBB.Items.Add(temp^.Info.obType);
+    temp:=temp^.adr;
+  end;
+end;
+
+procedure removeObjList(var head:TObjAdr; const el:string);
+var
+  temp,temp2:TObjAdr;
+begin
+  temp := head;
+  while temp^.adr <> nil do
+  begin
+    temp2 := temp^.adr;
+    if temp2^.Info.obType = el then
+    begin
+      temp^.adr := temp2^.adr;
+      dispose(temp2);
+    end
+    else
+      temp:= temp^.adr;
+  end;
+end;
+
+procedure editObjList(head:TObjAdr; name:string; newname:string; newwork: integer; newmoney: Currency );
+var
+  temp:TObjAdr;
+begin
+  temp:= head;
+  while temp <> nil do
+  begin
+    if temp.Info.obType = name then
+    begin
+      temp.Info.obType := newname;
+      temp.Info.Workers := newwork;
+      temp.Info.MatCost := newmoney;
+      exit;
+    end;
+    temp := temp^.Adr;
+  end;
 end;
 
 end.

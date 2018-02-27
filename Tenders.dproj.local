@@ -1,16 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.394,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.272,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.856,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.336,C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas=D:\labs\lab 2\Tender.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.921,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.394,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.707,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.908,C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Project1.dproj=D:\labs\lab 2\Tenders.dproj</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.336,C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.dfm=D:\labs\lab 2\Tender.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.947,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.439,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.856,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.118,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.336,C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas=D:\labs\lab 2\Tender.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.947,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.967,D:\labs\lab 2\Unit1.pas=D:\labs\lab 2\AddList.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.336,C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.dfm=D:\labs\lab 2\Tender.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.967,D:\labs\lab 2\Unit1.dfm=D:\labs\lab 2\AddList.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.014,=D:\labs\lab 2\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.272,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.439,=C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.908,C:\Users\Win10\Documents\Embarcadero\Studio\Projects\Project1.dproj=D:\labs\lab 2\Tenders.dproj</Transaction>
   </Transactions>
 </BorlandProject>

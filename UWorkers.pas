@@ -9,7 +9,7 @@ unit UWorkers;
 
 interface
 uses
-  Vcl.Forms,Vcl.Grids, Vcl.Graphics;
+  Vcl.Forms,Vcl.Grids, Vcl.Graphics, Vcl.StdCtrls;
 
 type
  {  ***** —œ»—Œ  –¿¡Œ◊»’ Õ¿◊¿ÀŒ ***** }
@@ -30,6 +30,7 @@ type
 
 // œ–Œ÷≈ƒ”–€ » ‘”Õ ÷»»
 procedure writeWorkList(Grid:TStringGrid; const head:TWorkAdr);
+//procedure removeWorkList(var head:TContrAdr; const el:string);
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
 procedure insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
         const Salary: Currency = 0; const ObjType: string = '1 Float House');
@@ -37,7 +38,9 @@ procedure saveWorkFile(const head:TWorkAdr);
 
 implementation
 
-  uses UContractors, System.SysUtils, UObjects;
+  uses  System.SysUtils, UObjects, UContractors;
+
+
 
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
 var
@@ -50,6 +53,7 @@ begin
   begin
     Reset(f);
     //Writeln('Read file ' + WorkFile);
+    Head^.Adr := nil;
     Temp := Head;
     while not EOF(f) do
     begin
@@ -99,7 +103,7 @@ procedure writeWorkList(Grid:TStringGrid; const head:TWorkAdr);
 var
   temp:TWorkAdr;
 begin
-  Grid.ColCount := 4;
+  Grid.ColCount := 5;
   Grid.Cells[0,0] := '‘»Œ';
   Grid.Cells[1,0] := ' ÓÏÔ‡ÌËˇ';
   Grid.Cells[2,0] := '«‡ÔÎ‡Ú‡';
@@ -109,8 +113,9 @@ begin
   begin
     Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
     Grid.Cells[1,Grid.RowCount - 1] := temp^.Info.Company;
-    Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.Salary) +' $';
+    Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.Salary);
     Grid.Cells[3,Grid.RowCount - 1] := temp^.Info.ObjType;
+    Grid.Cells[4,Grid.RowCount - 1] := '”‰‡ÎËÚ¸';
     temp:=temp^.adr;
     Grid.RowCount := Grid.RowCount + 1;
   end;
@@ -133,4 +138,7 @@ begin
   end;
   close(F);
 end;
+
+
+
 end.
