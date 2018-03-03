@@ -4,7 +4,7 @@ object TenderForm: TTenderForm
   HorzScrollBar.Style = ssFlat
   HorzScrollBar.Visible = False
   Caption = 'TenderForm'
-  ClientHeight = 254
+  ClientHeight = 306
   ClientWidth = 724
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,16 +22,17 @@ object TenderForm: TTenderForm
     Left = 0
     Top = 0
     Width = 724
-    Height = 254
+    Height = 306
     Align = alClient
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
+    ExplicitHeight = 254
     object ListTable: TStringGrid
       Left = 1
       Top = 1
       Width = 722
-      Height = 146
+      Height = 198
       Align = alClient
       ColCount = 1
       Ctl3D = False
@@ -57,7 +58,7 @@ object TenderForm: TTenderForm
     end
     object pnlBottom: TPanel
       Left = 1
-      Top = 188
+      Top = 240
       Width = 722
       Height = 65
       Align = alBottom
@@ -69,6 +70,7 @@ object TenderForm: TTenderForm
       ParentCtl3D = False
       ShowCaption = False
       TabOrder = 1
+      ExplicitTop = 188
       object btnAdd: TButton
         Left = 0
         Top = 0
@@ -84,7 +86,7 @@ object TenderForm: TTenderForm
     end
     object pnlEditOn: TPanel
       Left = 1
-      Top = 147
+      Top = 199
       Width = 722
       Height = 41
       Align = alBottom
@@ -112,27 +114,27 @@ object TenderForm: TTenderForm
     Top = 64
     object mnFile: TMenuItem
       Caption = #1060#1072#1081#1083
-      object mnSaveAll: TMenuItem
+      object mniSaveAll: TMenuItem
         Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1074#1089#1077
-        OnClick = mnSaveAllClick
+        OnClick = mniSaveAllClick
       end
     end
     object mnLists: TMenuItem
       Caption = #1057#1087#1080#1089#1082#1080
-      object mnObjList: TMenuItem
+      object mniObjList: TMenuItem
         Caption = #1054#1073#1098#1077#1082#1090#1099
-        OnClick = mnObjListClick
+        OnClick = mniObjListClick
       end
-      object mnContrList: TMenuItem
+      object mniContrList: TMenuItem
         Caption = #1055#1086#1076#1088#1103#1076#1095#1080#1082#1080
-        OnClick = mnContrListClick
+        OnClick = mniContrListClick
       end
-      object mnWorkersList: TMenuItem
+      object mniWorkersList: TMenuItem
         Caption = #1056#1072#1073#1086#1095#1080#1077
-        OnClick = mnWorkersListClick
+        OnClick = mniWorkersListClick
       end
     end
-    object mnTender: TMenuItem
+    object mniTender: TMenuItem
       Caption = #1058#1077#1085#1076#1077#1088
       object mnNewTender: TMenuItem
         Caption = #1053#1086#1074#1099#1081' '#1090#1077#1085#1076#1077#1088
@@ -141,16 +143,31 @@ object TenderForm: TTenderForm
     end
     object mnEdit: TMenuItem
       Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077
-      object mnEditOn: TMenuItem
+      object mniEditOn: TMenuItem
         Caption = #1042#1082#1083#1102#1095#1080#1090#1100
         RadioItem = True
-        OnClick = mnEditOnClick
+        OnClick = mniEditOnClick
       end
-      object mnEditOff: TMenuItem
+      object mniEditOff: TMenuItem
         Caption = #1042#1099#1082#1083#1102#1095#1080#1090#1100
         Checked = True
         RadioItem = True
-        OnClick = mnEditOffClick
+        OnClick = mniEditOffClick
+      end
+    end
+    object mnSearch: TMenuItem
+      Caption = #1055#1086#1080#1089#1082
+      object mniSearchObj: TMenuItem
+        Caption = #1054#1073#1098#1077#1082#1090#1099
+        OnClick = mniSearchObjClick
+      end
+      object mniSearchContr: TMenuItem
+        Caption = #1055#1086#1076#1088#1103#1076#1095#1080#1082#1080
+        OnClick = mniSearchContrClick
+      end
+      object mniSearchWorkers: TMenuItem
+        Caption = #1056#1072#1073#1086#1095#1080#1077
+        OnClick = mniSearchWorkersClick
       end
     end
   end

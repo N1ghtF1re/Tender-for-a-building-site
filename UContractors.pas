@@ -40,6 +40,8 @@ procedure writeAllWorkListWithContr(Grid: TStringGrid;var head:TContrAdr);
 procedure getCBBContrList(CBB: TComboBox; const head: TContrAdr);
 procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency); overload;
 procedure editWorkList(const head:TWorkAdr; newcompany:string); overload;
+procedure searchContrList(head: TContrAdr; Grid:TStringGrid; name:string; n1:byte);
+procedure searchWorkerList(Grid: TStringGrid;var head:TContrAdr; fio, comp, obj:string; salary: currency; n1,n2,n3,n4:byte);
 implementation
 uses
   System.SysUtils;
@@ -151,6 +153,7 @@ begin
   Grid.RowCount := 2;
   Grid.Cells[0,0] := 'Компания';
   Grid.Cells[1,0] := '';
+  Grid.Cells[2,0] := '';
   temp := head^.adr;
   while temp <> nil do
   begin
@@ -374,5 +377,55 @@ begin
     end;
     t:=t^.Adr;
   end;
+end;
+
+procedure searchContrList(head: TContrAdr; Grid:TStringGrid; name:string; n1:byte);
+var
+  temp: TContrAdr;
+  b1: Boolean;
+begin
+  Grid.ColCount := 3;
+  Grid.RowCount := 2;
+  Grid.Cells[0,0] := 'Компания';
+  Grid.Cells[1,0] := '';
+  Grid.Cells[2,0] := '';
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    if name = '' then
+      b1 := true
+    else
+    begin
+      case n1 of
+        0: b1 := temp^.Info.Name = name;
+        1: b1 := Pos(AnsiUpperCase(name),AnsiUpperCase(temp^.Info.Name)) > 0;
+      end;
+
+    end;
+    if (b1) then
+    begin
+      Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
+      Grid.Cells[1,Grid.RowCount - 1] := 'Показать сотрудников';
+      Grid.Cells[2,Grid.RowCount - 1] := 'Удалить';
+      Grid.RowCount := Grid.RowCount + 1;
+    end;
+    temp:=temp^.adr;
+
+  end;
+  Grid.RowCount := Grid.RowCount - 1;
+end;
+
+procedure searchWorkerList(Grid: TStringGrid;var head:TContrAdr; fio, comp, obj:string; salary: currency; n1,n2,n3,n4:byte);
+var
+  temp:TContrAdr;
+begin
+  Grid.RowCount := 2;
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    writeSearchWorkListGrid(Grid, temp^.WorkersHead, fio, comp, obj, salary,n1,n2,n3,n4);
+    temp := temp^.Adr;
+  end;
+  Grid.RowCount := Grid.RowCount - 1;
 end;
 end.

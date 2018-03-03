@@ -8,6 +8,7 @@ uses
   Vcl.Mask, System.Actions, Vcl.ActnList, UObjects, UWorkers, UContractors;
 
 type
+  TMode = (MObjList, MContrList, MWorkList, MTender);
   TAddListForm = class(TForm)
     pnlMain: TPanel;
     lblInput1: TLabel;
@@ -21,27 +22,26 @@ type
     cbbSetObject: TComboBox;
     lblInput4: TLabel;
     edtInput4: TEdit;
-    procedure FormActivate(Sender: TObject);
     procedure btnAddListClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
   private
     { Private declarations }
   public
-    { Public declarations }
+    procedure FillFrom(Mode:TMode);
   end;
 
 var
   AddListForm: TAddListForm;
 
 implementation
-
-{$R *.dfm}
 uses Tender;
+{$R *.dfm}
 
 procedure TAddListForm.btnAddListClick(Sender: TObject);
 var 
   st:string;
 begin
-  case TenderForm.mode of
+  case TMode(TenderForm.mode) of
     MObjList:
     begin
       try
@@ -101,10 +101,10 @@ begin
   end;
 end;
 
-procedure TAddListForm.FormActivate(Sender: TObject);
+procedure TAddListForm.FillFrom(Mode:TMode);
 begin
-
-    case TenderForm.mode of
+  //ShowMessage( IntToStr(Ord(mode) ) );
+  case TMode(TenderForm.mode) of
       MObjList:
       begin
         lblInput1.Caption := 'Название объекта';
@@ -115,7 +115,7 @@ begin
         edtInput3.Visible := True;
          cbbSetCompany.Visible := false;
          cbbSetObject.Visible:=False;
-        
+
         edtInput4.Visible := false;
         lblInput4.Visible := false;
         lblInput2.Caption := 'Минимальное кол-во рабочих';
@@ -160,11 +160,11 @@ begin
         edtInput4.Text := '';
       end;
     end;
-
-
-
-  
-
+end;
+procedure TAddListForm.FormActivate(Sender: TObject);
+begin
+  btnAddList.Visible := True;
+  FillFrom(TMode(TenderForm.Mode));
 end;
 
 end.

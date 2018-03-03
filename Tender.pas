@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Menus, Vcl.Grids,UObjects, UWorkers, UContractors, UTender,
-  Vcl.StdCtrls, AddList;
+  Vcl.StdCtrls, AddList, USearch;
 
 type
   TMode = (MObjList, MContrList, MWorkList, MTender);
@@ -17,19 +17,23 @@ type
     mnFile: TMenuItem;
     mnLists: TMenuItem;
     ListTable: TStringGrid;
-    mnObjList: TMenuItem;
-    mnContrList: TMenuItem;
-    mnWorkersList: TMenuItem;
-    mnTender: TMenuItem;
+    mniObjList: TMenuItem;
+    mniContrList: TMenuItem;
+    mniWorkersList: TMenuItem;
+    mniTender: TMenuItem;
     mnNewTender: TMenuItem;
-    mnSaveAll: TMenuItem;
+    mniSaveAll: TMenuItem;
     pnlBottom: TPanel;
     btnAdd: TButton;
     mnEdit: TMenuItem;
-    mnEditOn: TMenuItem;
-    mnEditOff: TMenuItem;
+    mniEditOn: TMenuItem;
+    mniEditOff: TMenuItem;
     pnlEditOn: TPanel;
     tmrEditMode: TTimer;
+    mnSearch: TMenuItem;
+    mniSearchObj: TMenuItem;
+    mniSearchContr: TMenuItem;
+    mniSearchWorkers: TMenuItem;
     function getObjHead():TObjAdr;
     procedure FormCreate(Sender: TObject);
     function getAdditionalTitle():String;
@@ -37,11 +41,11 @@ type
     procedure ListTableMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     function getContHead():TContrAdr;
-    procedure mnObjListClick(Sender: TObject);
-    procedure mnContrListClick(Sender: TObject);
-    procedure mnWorkersListClick(Sender: TObject);
+    procedure mniObjListClick(Sender: TObject);
+    procedure mniContrListClick(Sender: TObject);
+    procedure mniWorkersListClick(Sender: TObject);
     procedure mnNewTenderClick(Sender: TObject);
-    procedure mnSaveAllClick(Sender: TObject);
+    procedure mniSaveAllClick(Sender: TObject);
     procedure btnAddClick(Sender: TObject);
     procedure SetEditOff;
     procedure addNewWorkers(fio:string;obj:string;company:string; money: Currency);
@@ -49,17 +53,24 @@ type
     procedure addNewObj(obj:string; workers: Integer; money: Currency);
     procedure ListTableDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
-    procedure mnEditOnClick(Sender: TObject);
-    procedure mnEditOffClick(Sender: TObject);
+    procedure mniEditOnClick(Sender: TObject);
+    procedure mniEditOffClick(Sender: TObject);
     procedure tmrEditModeTimer(Sender: TObject);
     procedure editObjData(inptext:string; ACol,ARow: integer);
     procedure editContrData(inptext:string; ACol, ARow:Integer);
     procedure editWorkersData(inptext:string; ACol, ARow:integer);
-
+    procedure mniSearchObjClick(Sender: TObject); 
+    procedure SearchContr(const contrname : string; n1:byte);
+    procedure mniSearchContrClick(Sender: TObject);
+    procedure mniSearchWorkersClick(Sender: TObject);
+    procedure SearchWorker(const fio, comp, obj:string; salary: Currency; n1,n2,n3,n4:byte);
+    procedure SearchObj(obj:string; minwork: integer; money: Currency; n1,n2,n3:Byte);
+ 
   private
   public
     Mode: TMode;
-    //edm: TEdm;
+    SearchMode: TMode;
+     //edm: TEdm;
     { Public declarations }
   end;
 
@@ -77,6 +88,16 @@ implementation
 
 
 {$R *.dfm}
+
+procedure removeRow(var Grid:TStringGrid; el:integer);
+var i:integer;
+begin
+  for I := el to Grid.RowCount-2 do
+  begin
+    Grid.Rows[i] := Grid.Rows[i+1];
+  end;
+  Grid.RowCount := Grid.RowCount - 1;
+end;
 
 procedure TTenderForm.addNewObj(obj:string; workers: Integer; money: Currency);
 begin
@@ -163,7 +184,19 @@ begin
 end;
 
 procedure TTenderForm.FormResize(Sender: TObject);
+var i:Byte;
 begin
+  if (ListTable.Cells[0,1] = 'Ничего не найдено') and (ListTable.RowCount > 2) then
+    removeRow(ListTable, 1); 
+  if ListTable.RowCount = 1 then
+  begin
+    mnEdit.Enabled := false;
+    ListTable.RowCount := 2;
+    ListTable.Cells[0,1] := 'Ничего не найдено';
+    for I := 1 to ListTable.ColCount-1 do
+      ListTable.Cells[i,1] := '';
+      
+  end;
   ListTable.DefaultColWidth := Trunc( pnlMain.Width / (ListTable.ColCount)) - 3;
   case mode of
     MObjList:
@@ -193,22 +226,25 @@ begin
   end;
 end;
 
-procedure removeRow(var Grid:TStringGrid; el:integer);
-var i:integer;
-begin
-  for I := el to Grid.RowCount-2 do
-  begin
-    Grid.Rows[i] := Grid.Rows[i+1];
-  end;
-  Grid.RowCount := Grid.RowCount - 1;
-end;
 
 procedure TTenderForm.ListTableDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
 begin
+  if ARow = 0 then
+  begin
+    With ListTable do
+    begin
+      Canvas.Brush.Color := clTeal;
+      Rect.Left := Rect.Left - 5;
+      Canvas.FillRect(Rect);
+      Canvas.Font.Color := clWhite;
+      ListTable.Canvas.TextOut(Rect.Left + 5,Rect.Top+5, Cells[ACol, ARow]);  
+    end;
+    Canvas.Font.Color := clBlack;
+  end;
   if Mode = MWorkList then
   begin
-    if (ACol = 4) and (arow <> 0) then   // Там хранится адрес элемента
+    if (ACol = 4) and (arow <> 0) and (ListTable.Cells[ACol,ARow] <> '') then   // Там хранится адрес элемента
     // Списка рабочих, закрашиваем и добавляем текст "Удалить"
     begin
       ListTable.Canvas.Brush.Color := clWhite;
@@ -372,51 +408,54 @@ begin
       end;
     end;
   end;
-  if mode = MContrList then
+  if listtable.Cells[0,1] <> 'Ничего не найдено' then
   begin
-    if ((ARow <> 0) and (ACol = 1) and (ARow <> -1)) then
+    if mode = MContrList then
     begin
-      // Переключение на список рабочих компании
-      company:= ListTable.Cells[0, ARow];
-      writeWorkListWithContr(ListTable, ContHead,ListTable.Cells[0, ARow]);
-      additionalTitle := company;
-      mode := MWorkList;
-      setEditOff;
-      Resize;
-    end;
-    if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
-    begin
-      if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!' + #10#13 + 'При удалении подрядчика, будут удалены все его сотрудники',mtCustom,[mbYes,mbNo], 0) = mrYes then
+      if ((ARow <> 0) and (ACol = 1) and (ARow <> -1)) then
       begin
-        removeContrList(ContHead, ListTable.Cells[0, ARow]);
-        removeRow(ListTable, ARow);
+        // Переключение на список рабочих компании
+        company:= ListTable.Cells[0, ARow];
+        writeWorkListWithContr(ListTable, ContHead,ListTable.Cells[0, ARow]);
+        additionalTitle := company;
+        mode := MWorkList;
+        setEditOff;
+        Resize;
       end;
-      Resize;
-    end;
-  end;
-  if mode = MObjList then
-  begin
-    if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
-    begin
-      if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!' + #10#13 + 'При удалении объекта будут удалены все рабочие, которые могут строить этот объект',mtCustom,[mbYes,mbNo], 0) = mrYes then
+      if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
       begin
-        removeObjList(ObjHead, ListTable.Cells[0, ARow]);
-        removeWorkList(ContHead,ListTable.Cells[0, ARow]);
-        removeRow(ListTable, ARow);
+        if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!' + #10#13 + 'При удалении подрядчика, будут удалены все его сотрудники',mtCustom,[mbYes,mbNo], 0) = mrYes then
+        begin
+          removeContrList(ContHead, ListTable.Cells[0, ARow]);
+          removeRow(ListTable, ARow);
+        end;
+        Resize;
       end;
-      Resize;
     end;
-  end;
-  if mode = MWorkList then
-  begin
-    if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
+    if mode = MObjList then
     begin
-      if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!',mtCustom,[mbYes,mbNo], 0) = mrYes then
+      if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
       begin
-        removeWorkList(ContHead, StrToInt(ListTable.Cells[4,ARow]));
-        removeRow(ListTable, ARow);
+        if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!' + #10#13 + 'При удалении объекта будут удалены все рабочие, которые могут строить этот объект',mtCustom,[mbYes,mbNo], 0) = mrYes then
+        begin
+          removeObjList(ObjHead, ListTable.Cells[0, ARow]);
+          removeWorkList(ContHead,ListTable.Cells[0, ARow]);
+          removeRow(ListTable, ARow);
+        end;
+        Resize;
       end;
-      Resize;
+    end;
+    if mode = MWorkList then
+    begin
+      if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
+      begin
+        if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!',mtCustom,[mbYes,mbNo], 0) = mrYes then
+        begin
+          removeWorkList(ContHead, StrToInt(ListTable.Cells[4,ARow]));
+          removeRow(ListTable, ARow);
+        end;
+        Resize;
+      end;
     end;
   end;
   if mode = MTender then
@@ -434,7 +473,7 @@ begin
   end;
 end;
 
-procedure TTenderForm.mnContrListClick(Sender: TObject);
+procedure TTenderForm.mniContrListClick(Sender: TObject);
 begin
   setEditOff;
   Mode := MContrList;
@@ -442,14 +481,14 @@ begin
   Resize;
 end;
 
-procedure TTenderForm.mnEditOffClick(Sender: TObject);
+procedure TTenderForm.mniEditOffClick(Sender: TObject);
 begin
   setEditOff;
 end;
 
-procedure TTenderForm.mnEditOnClick(Sender: TObject);
+procedure TTenderForm.mniEditOnClick(Sender: TObject);
 begin
-  mnEditOn.Checked := True;
+  mniEditOn.Checked := True;
   ViewMode := MEdit;
   pnlEditOn.Visible := true;
   tmrEditMode.Enabled := True;
@@ -458,7 +497,7 @@ end;
 procedure TTenderForm.SetEditOff;
 begin
   mnEdit.Enabled := True;
-  mnEditOff.Checked := true;
+  mniEditOff.Checked := true;
   ViewMode := MView;
   pnlEditOn.Visible := false;
   tmrEditMode.Enabled := false;
@@ -492,7 +531,7 @@ begin
   resize;
 end;
 
-procedure TTenderForm.mnObjListClick(Sender: TObject);
+procedure TTenderForm.mniObjListClick(Sender: TObject);
 begin
   setEditOff;
   writeObjList(ListTable, ObjHead);
@@ -500,14 +539,32 @@ begin
   Resize;
 end;
 
-procedure TTenderForm.mnSaveAllClick(Sender: TObject);
+procedure TTenderForm.mniSaveAllClick(Sender: TObject);
 begin
   saveContrFile(ContHead);
   saveObjFile(ObjHead);
   ShowMessage('Успешно сохранено');
 end;
 
-procedure TTenderForm.mnWorkersListClick(Sender: TObject);
+procedure TTenderForm.mniSearchContrClick(Sender: TObject);
+begin
+  SearchMode := MContrList; 
+  SearchForm.ShowModal;
+end;
+
+procedure TTenderForm.mniSearchObjClick(Sender: TObject);
+begin
+  SearchMode := MObjList; 
+  SearchForm.ShowModal;
+end;
+
+procedure TTenderForm.mniSearchWorkersClick(Sender: TObject);
+begin
+  SearchMode := MWorkList; 
+  SearchForm.ShowModal;
+end;
+
+procedure TTenderForm.mniWorkersListClick(Sender: TObject);
 begin
   setEditOff;
   mode := MWorkList;
@@ -520,5 +577,27 @@ procedure TTenderForm.tmrEditModeTimer(Sender: TObject);
 begin
   pnlEditOn.Visible := False;
 end;
+
+procedure TTenderForm.SearchObj(obj:string; minwork: integer; money: Currency; n1, n2,n3:Byte);
+begin
+  searchObjList(ObjHead,ListTable, obj, minwork, money, n1, n2,n3);  
+  Mode := MObjList;
+  resize;
+end;
+
+procedure TTenderForm.SearchContr(const contrname : string; n1:byte);
+begin
+  searchContrList(ContHead,ListTable, contrname, n1);  
+  Mode := MContrList;
+  resize;
+end;
+
+procedure TTenderForm.SearchWorker(const fio, comp, obj:string; salary: Currency; n1,n2,n3,n4:byte);
+begin
+  searchWorkerList(ListTable, ContHead, fio, comp, obj, salary,n1,n2,n3,n4);
+  Mode := MWorkList;
+  resize;
+end;
+
 
 end.

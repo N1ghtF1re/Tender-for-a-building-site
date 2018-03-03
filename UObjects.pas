@@ -33,7 +33,7 @@ procedure insertObjList(const head: TObjAdr; tp:string = '1 Float House'; wk:int
 procedure writeObjList(Grid:TStringGrid; const head:TObjAdr);
 function ObjAdrOf(head: TObjAdr; name: string):TObjAdr;
 procedure editObjList(head:TObjAdr; name:string; newname:string; newwork: integer; newmoney: Currency );
-
+procedure searchObjList(head:TObjAdr;Grid:TStringGrid;obj:string; minwork: integer; money: Currency; n1,n2,n3:integer);
 implementation
 uses
  System.SysUtils;
@@ -202,6 +202,67 @@ begin
     end;
     temp := temp^.Adr;
   end;
+end;
+
+procedure searchObjList(head:TObjAdr;Grid:TStringGrid;obj:string; minwork: integer; money: Currency; n1,n2,n3:integer);
+var
+  b1,b2,b3:Boolean;
+  temp:TObjAdr;
+begin
+  Grid.ColCount := 4;
+  Grid.RowCount := 2;
+  Grid.Cells[0,0] := 'Тип объекта';
+  Grid.Cells[1,0] := 'Мин. кол-во рабочих';
+  Grid.Cells[2,0] := 'Стоимость материалов';
+  temp:=head;
+  while temp <> nil do
+  begin
+    if obj = '' then
+      b1 := true
+    else
+    begin
+      if n1 = 0 then
+        b1 := temp^.Info.obType = obj
+      else
+      begin
+        b1 := Pos(AnsiUpperCase(obj),AnsiUpperCase(temp^.Info.obType)) > 0;
+      end;
+
+    end;
+    if minwork = -1 then
+      b2 := True
+    else
+    begin
+      b2 := temp^.Info.Workers = minwork;
+      case n2 of
+        0: b2 := temp^.Info.Workers = minwork;
+        1: b2 := temp^.Info.Workers < minwork;
+        2: b2 := temp^.Info.Workers > minwork;
+      end;
+    end;
+    if money = -1 then
+      b3:= True
+    else
+    begin
+      case n3 of
+        0: b3 := temp^.Info.MatCost = money;
+        1: b3 := temp^.Info.MatCost < money;
+        2: b3 := temp^.Info.MatCost > money;
+      end;
+    end;
+
+    if b1 and b2 and b3 then
+    begin
+      Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.obType;
+      Grid.Cells[1,Grid.RowCount - 1] := IntToStr(temp^.INFO.Workers);
+      Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.MatCost);
+      Grid.Cells[3,Grid.RowCount - 1] := 'Удалить';
+      Grid.RowCount := Grid.RowCount + 1;
+    end;
+
+    temp:= temp^.Adr;
+  end;
+  Grid.RowCount := Grid.RowCount - 1;
 end;
 
 end.

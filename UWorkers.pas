@@ -35,6 +35,7 @@ procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
 function insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
         const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
 procedure saveWorkFile(const head:TWorkAdr);
+procedure writeSearchWorkListGrid(Grid: TStringGrid;var head:TWorkAdr; fio, comp, obj:string; salary: currency; n1,n2,n3,n4:byte);
 
 implementation
 
@@ -141,6 +142,72 @@ begin
   close(F);
 end;
 
+procedure writeSearchWorkListGrid(Grid: TStringGrid;var head:TWorkAdr; fio, comp, obj:string; salary: currency; n1,n2,n3,n4:byte);
+var
+  temp:TWorkAdr;
+  b1,b2,b3,b4: Boolean;
+begin
+  Grid.ColCount := 5;
+  Grid.Cells[0,0] := 'ФИО';
+  Grid.Cells[1,0] := 'Компания';
+  Grid.Cells[2,0] := 'Зарплата';
+  Grid.Cells[3,0] := 'Тип объекта';
 
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    if fio = '' then
+      b1 := true
+    else
+    begin
+      case n1 of
+        0: b1 := temp^.Info.Name = fio;
+        1: b1 := Pos(AnsiUpperCase(fio), AnsiUpperCase(temp^.Info.Name)) > 0;
+      end;
+    end;
+    if comp = '' then
+      b2 := true
+    else
+    begin
+      case n2 of
+        0: b2 := temp^.Info.Company = comp;
+        1: b2 := Pos(AnsiUpperCase(comp), AnsiUpperCase(temp^.Info.Company)) > 0;
+      end;
+
+    end;
+    if obj = '' then
+      b3 := True
+    else
+    begin
+      case n4 of
+        0: b3 := temp^.Info.ObjType = obj;
+        1: b3 := Pos(AnsiUpperCase(obj), AnsiUpperCase(temp^.Info.ObjType)) > 0;
+      end;
+    end;
+    if salary = -1 then
+      b4 := True
+    else
+    begin
+      case n3 of
+        0: b4 := temp^.Info.Salary = salary;
+        1: b4 := temp^.Info.Salary < salary;
+        2: b4 := temp^.Info.Salary > salary;
+      end;
+
+    end;
+
+    if b1 and b2 and b3 and b4 then
+    begin
+      Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
+      Grid.Cells[1,Grid.RowCount - 1] := temp^.Info.Company;
+      Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.Salary);
+      Grid.Cells[3,Grid.RowCount - 1] := temp^.Info.ObjType;
+      Grid.Cells[4,Grid.RowCount - 1] := IntToStr( Integer(temp) );
+      Grid.RowCount := Grid.RowCount + 1;
+    end;
+    temp:=temp^.adr;
+
+  end;
+end;
 
 end.
