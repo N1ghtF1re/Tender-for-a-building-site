@@ -25,19 +25,19 @@ type
 // œ–Œ÷≈ƒ”–€ » ‘”Õ ÷»»
 procedure readContrFile(const head:TContrAdr);
 function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string):TWorkAdr;
-procedure removeWorkList(var head:TContrAdr; const el:string);
+procedure removeWorkList(var head:TContrAdr; const intadr:integer);
 procedure editContrList(head:TContrAdr; name:string; newname:string);
 procedure removeContrList(var head:TContrAdr; const el:string);
 procedure saveContrFile(const head:TContrAdr);
 procedure insertContrList(const head: TContrAdr; name:string);
 procedure writeContrList(Grid: TStringGrid;var head:TContrAdr);
-procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+function insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
 function ContrAdrOf(const head: TContrAdr; name: string):TContrAdr;
 procedure writeWorkListWithContr(Grid: TStringGrid;var head:TContrAdr; const company:string);
 procedure writeAllWorkListWithContr(Grid: TStringGrid;var head:TContrAdr);
 procedure getCBBContrList(CBB: TComboBox; const head: TContrAdr);
-procedure editWorkList(const head:TContrAdr; const name:string; const comp:string; const newname, newcomp, newobj:string; const newsalary: Currency);
+procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency);
 
 implementation
 uses
@@ -165,8 +165,8 @@ begin
   Grid.RowCount := Grid.RowCount - 1;
 end;
 
-procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+function insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
 var
   temp:TContrAdr;
 begin
@@ -175,7 +175,7 @@ begin
   begin
     if (temp^.Info.Name = company) then
     begin
-      insertWorkList(temp^.WorkersHead, company, Name, Salary, ObjType);
+      Result := insertWorkList(temp^.WorkersHead, company, Name, Salary, ObjType);
       Exit;
     end;
     temp:=temp^.Adr;
@@ -250,7 +250,7 @@ begin
   end;
 end;
 
-procedure removeWorkList(var head:TContrAdr; const el:string);
+procedure removeWorkList(var head:TContrAdr; const intadr:integer);
 var
   t:TContrAdr;
   temp,temp2:TWorkAdr;
@@ -262,7 +262,7 @@ begin
     while temp^.adr <> nil do
     begin
       temp2 := temp^.adr;
-      if temp2^.Info.Name = el then
+      if Integer(temp) = intadr then
       begin
         temp^.adr := temp2^.adr;
         dispose(temp2);
@@ -314,7 +314,7 @@ begin
   end;
 end;
 
-procedure editWorkList(const head:TContrAdr; const name:string; const comp:string; const newname, newcomp, newobj:string; const newsalary: Currency);
+procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency);
 var
   t:TContrAdr;
   temp:TWorkAdr;
@@ -325,7 +325,7 @@ begin
     temp := t.WorkersHead;
     while temp <> nil do
     begin
-      if (temp^.Info.Name = name) and (temp^.Info.Company= comp) then
+      if (Integer(temp) = intadr) then
       begin
         temp^.Info.Name := newname;
         temp^.Info.Company := newcomp;

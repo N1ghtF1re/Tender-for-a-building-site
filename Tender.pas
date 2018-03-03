@@ -9,6 +9,7 @@ uses
 
 type
   TMode = (MObjList, MContrList, MWorkList, MTender);
+  TViewMode = (MView, MEdit);
   //TEdm = (madd, medit);
   TTenderForm = class(TForm)
     pnlMain: TPanel;
@@ -24,6 +25,11 @@ type
     mnSaveAll: TMenuItem;
     pnlBottom: TPanel;
     btnAdd: TButton;
+    mnEdit: TMenuItem;
+    mnEditOn: TMenuItem;
+    mnEditOff: TMenuItem;
+    pnlEditOn: TPanel;
+    tmrEditMode: TTimer;
     function getObjHead():TObjAdr;
     procedure FormCreate(Sender: TObject);
     function getAdditionalTitle():String;
@@ -40,6 +46,11 @@ type
     procedure addNewWorkers(fio:string;obj:string;company:string; money: Currency);
     procedure addNewCompany(CompName:string);
     procedure addNewObj(obj:string; workers: Integer; money: Currency);
+    procedure ListTableDrawCell(Sender: TObject; ACol, ARow: Integer;
+      Rect: TRect; State: TGridDrawState);
+    procedure mnEditOnClick(Sender: TObject);
+    procedure mnEditOffClick(Sender: TObject);
+    procedure tmrEditModeTimer(Sender: TObject);
   private
   public
     Mode: TMode;
@@ -49,6 +60,7 @@ type
 
 var
   TenderForm: TTenderForm;
+  ViewMode: TViewMode;
   ObjHead:TObjAdr;
   TendHead: TTendAdr;
   ContHead: TContrAdr;
@@ -81,8 +93,10 @@ begin
 end;
 
 procedure TTenderForm.addNewWorkers(fio:string;obj:string;company:string; money: Currency);
+var
+  intadr:integer;
 begin
-  insertWorkListFromCompany(ContHead, company,fio,money, obj);
+  intadr := insertWorkListFromCompany(ContHead, company,fio,money, obj);
   with TenderForm.ListTable do
   begin
     RowCount := RowCount + 1;
@@ -90,7 +104,7 @@ begin
     Cells[1, RowCount-1] := company;
     Cells[2, RowCount-1] := CurrToStr(money);
     Cells[3, RowCount-1] := obj;
-    Cells[4,RowCount - 1] := 'Удалить';
+    Cells[4, RowCount-1] := IntToStr(intadr);
     Resize;
   end;
 end;
@@ -188,6 +202,20 @@ begin
   Grid.RowCount := Grid.RowCount - 1;
 end;
 
+procedure TTenderForm.ListTableDrawCell(Sender: TObject; ACol, ARow: Integer;
+  Rect: TRect; State: TGridDrawState);
+begin
+  if Mode = MWorkList then
+  begin
+    if (ACol = 4) and (arow <> 0) then
+    begin
+      ListTable.Canvas.Brush.Color := clWhite;
+      ListTable.Canvas.FillRect(Rect);
+      ListTable.Canvas.TextOut(Rect.Left,Rect.Top+5,'Удалить');
+    end;
+  end;
+end;
+
 procedure TTenderForm.ListTableMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
@@ -199,19 +227,22 @@ begin
   ListTable.MouseToCell(X, Y, ACol, ARow);
   if mode = MContrList then
   begin
-    if ((ARow <> 0) and (ACol = 0) and (ARow <> -1)) then
+    if ViewMode = MEdit then
     begin
-      comname := InputBox('Изменить поле','Введите название подрядчика ',ListTable.Cells[0, ARow]);
-      comname := Trim(comname);
-      if (ListTable.Cells[0, ARow] <> comname) and (Trim(comname) <> '') then
+      if ((ARow <> 0) and (ACol = 0) and (ARow <> -1)) then
       begin
-        if ContrAdrOf(ContHead, comname) = nil then
+        comname := InputBox('Изменить поле','Введите название подрядчика ',ListTable.Cells[0, ARow]);
+        comname := Trim(comname);
+        if (ListTable.Cells[0, ARow] <> comname) and (Trim(comname) <> '') then
         begin
-          editContrList(ContHead, ListTable.Cells[0, ARow], comname);
-          ListTable.Cells[0, ARow] := comname;
-        end
-        else
-          ShowMessage('Такая компания уже зарегистрирована');
+          if ContrAdrOf(ContHead, comname) = nil then
+          begin
+            editContrList(ContHead, ListTable.Cells[0, ARow], comname);
+            ListTable.Cells[0, ARow] := comname;
+          end
+          else
+            ShowMessage('Такая компания уже зарегистрирована');
+        end;
       end;
     end;
     if ((ARow <> 0) and (ACol = 1) and (ARow <> -1)) then
@@ -221,6 +252,11 @@ begin
       //ShowMessage( ListTable.Cells[0, ARow] );
       additionalTitle := company;
       mode := MWorkList;
+      mnEditOff.Checked := true;
+      mnEdit.Enabled := true;
+      ViewMode := MView;
+      pnlEditOn.Visible := false;
+      tmrEditMode.Enabled := false;
       Resize;
     end;
     if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
@@ -235,77 +271,61 @@ begin
   end;
   if mode = MObjList then
   begin
-    if ((ARow <> 0) and (ACol = 0) and (ARow <> -1)) then
-    begin
-      comname := InputBox('Изменить поле','Введите название объекта ',ListTable.Cells[0, ARow]);
-      comname := Trim(comname);
-      if (ListTable.Cells[0, ARow] <> comname) and (comname <> '')  then
-      begin
-        if (ObjAdrOf(ObjHead, comname) = nil) then
-        begin
-          // ShowMessage('kek');
-          editObjList(ObjHead, ListTable.Cells[0, ARow], comname, StrToInt(ListTable.Cells[1, ARow]),StrToCurr(ListTable.Cells[2, ARow]));
-          ListTable.Cells[0, ARow] := comname;
-        end
-        else
-          ShowMessage('Такой объект уже есть');
-      end;
-    end;
-    if ((ARow <> 0) and (ACol = 1) and (ARow <> -1)) then
-    begin
-      inptext := InputBox('Изменить поле','Введите количество рабочих ',ListTable.Cells[ACol, ARow]);
-      if ListTable.Cells[0, ARow] <> comname then
-      begin
-        try
-          // ShowMessage('kek');
-          with ListTable do
-          begin
-            editObjList(ObjHead,Cells[0, ARow], Cells[0, ARow], StrToInt(inptext),StrToCurr(Cells[2, ARow]));
-            Cells[ACol, ARow] := inptext;
-          end;
-        except on E: Exception do
-          ShowMessage('Некорректный ввод')
-        end;
-      end;
-    end;
-    if ((ARow <> 0) and (ACol = 2) and (ARow <> -1)) then
-    begin
-      inptext := InputBox('Изменить поле','Введите новую цену материалов ',ListTable.Cells[ACol, ARow]);
-      if ListTable.Cells[0, ARow] <> comname then
-      begin
-        try
-          // ShowMessage('kek');
-          with ListTable do
-          begin
-            editObjList(ObjHead,Cells[0, ARow], Cells[0, ARow], StrToInt(ListTable.Cells[1, ARow]),StrToCurr(inptext));
-            Cells[ACol, ARow] := inptext;
-          end;
-        except on E: Exception do
-          ShowMessage('Некорректный ввод')
-        end;
-      end;
-    end;
-    if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
+    if ViewMode = MEdit then
     begin
       if ((ARow <> 0) and (ACol = 0) and (ARow <> -1)) then
       begin
-        comname := InputBox('Изменить поле','Введите новое имя ',ListTable.Cells[0, ARow]);
+        comname := InputBox('Изменить поле','Введите название объекта ',ListTable.Cells[0, ARow]);
         comname := Trim(comname);
         if (ListTable.Cells[0, ARow] <> comname) and (comname <> '')  then
         begin
-          if (WorkerAdrOf(ContHead , comname, ListTable.Cells[3, ARow]) = nil) then
+          if (ObjAdrOf(ObjHead, comname) = nil) then
           begin
             // ShowMessage('kek');
-            with ListTable do
-            begin
-              //editWorkList(ContHead, ListTable.Cells[0, ARow] <> comname,
-              ListTable.Cells[0, ARow] := comname;
-            end;
+            editObjList(ObjHead, ListTable.Cells[0, ARow], comname, StrToInt(ListTable.Cells[1, ARow]),StrToCurr(ListTable.Cells[2, ARow]));
+            ListTable.Cells[0, ARow] := comname;
           end
           else
             ShowMessage('Такой объект уже есть');
         end;
       end;
+      if ((ARow <> 0) and (ACol = 1) and (ARow <> -1)) then
+      begin
+        inptext := InputBox('Изменить поле','Введите количество рабочих ',ListTable.Cells[ACol, ARow]);
+        if ListTable.Cells[0, ARow] <> comname then
+        begin
+          try
+            // ShowMessage('kek');
+            with ListTable do
+            begin
+              editObjList(ObjHead,Cells[0, ARow], Cells[0, ARow], StrToInt(inptext),StrToCurr(Cells[2, ARow]));
+              Cells[ACol, ARow] := inptext;
+            end;
+          except on E: Exception do
+            ShowMessage('Некорректный ввод')
+          end;
+        end;
+      end;
+      if ((ARow <> 0) and (ACol = 2) and (ARow <> -1)) then
+      begin
+        inptext := InputBox('Изменить поле','Введите новую цену материалов ',ListTable.Cells[ACol, ARow]);
+        if ListTable.Cells[0, ARow] <> comname then
+        begin
+          try
+            // ShowMessage('kek');
+            with ListTable do
+            begin
+              editObjList(ObjHead,Cells[0, ARow], Cells[0, ARow], StrToInt(ListTable.Cells[1, ARow]),StrToCurr(inptext));
+              Cells[ACol, ARow] := inptext;
+            end;
+          except on E: Exception do
+            ShowMessage('Некорректный ввод')
+          end;
+        end;
+      end;
+    end;
+    if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
+    begin
       if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!',mtCustom,[mbYes,mbNo], 0) = mrYes then
       begin
         removeObjList(ObjHead, ListTable.Cells[0, ARow]);
@@ -316,11 +336,52 @@ begin
   end;
   if mode = MWorkList then
   begin
+    if ViewMode = MEdit then
+    begin
+      if ((ARow <> 0) and (ACol = 0) and (ARow <> -1)) then
+      begin
+        inptext := InputBox('Изменить поле','Введите новое имя рабочего',ListTable.Cells[ACol, ARow]);
+        inptext := Trim(inptext);
+        if (ListTable.Cells[0, ARow] <> inptext) and (inptext <> '')  then
+        begin
+          with ListTable do
+          begin
+            editWorkList(ContHead, StrToInt(Cells[4,arow]), inptext, Cells[1,ARow], Cells[3,ARow], StrToCurr(Cells[2,ARow]) );
+            Cells[ACol,ARow] := inptext;
+          end;
+        end;
+      end;
+      if ((ARow <> 0) and (ACol = 1) and (ARow <> -1)) then
+      begin
+        inptext := InputBox('Изменить поле','Введите новую компанию рабочего',ListTable.Cells[ACol, ARow]);
+        inptext := Trim(inptext);
+        if ContrAdrOf(ContHead, inptext) <> nil then
+        begin
+          if (ListTable.Cells[0, ARow] <> inptext) and (inptext <> '')  then
+          begin
+            with ListTable do
+            begin
+              editWorkList(ContHead, StrToInt(Cells[4,arow]), Cells[0,ARow], inptext, Cells[3,ARow], StrToCurr(Cells[2,ARow]) );
+              removeWorkList(ContHead, StrToInt(Cells[4,ARow]));
+              if additionalTitle <> inptext then
+              begin
+                removeRow(ListTable,ARow);
+                insertWorkListFromCompany(ContHead, inptext,Cells[0,ARow], StrToCurr(Cells[2,ARow]), Cells[3,ARow]);
+              end
+              else
+                Cells[ACol,ARow] := inptext;
+            end;
+          end;
+        end
+        else
+          ShowMessage('Такой компании нет ;c');
+      end;
+    end;
     if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
     begin
       if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!',mtCustom,[mbYes,mbNo], 0) = mrYes then
       begin
-        removeWorkList(ContHead, ListTable.Cells[0, ARow]);
+        removeWorkList(ContHead, StrToInt(ListTable.Cells[4,ARow]));
         removeRow(ListTable, ARow);
       end;
       Resize;
@@ -343,9 +404,28 @@ end;
 
 procedure TTenderForm.mnContrListClick(Sender: TObject);
 begin
+  mnEditOff.Checked := true;
+  mnEdit.Enabled := true;
+  ViewMode := MView;
   Mode := MContrList;
   writeContrList(ListTable, ContHead);
   Resize;
+end;
+
+procedure TTenderForm.mnEditOffClick(Sender: TObject);
+begin
+  mnEditOff.Checked := true;
+  ViewMode := MView;
+  pnlEditOn.Visible := false;
+  tmrEditMode.Enabled := false;
+end;
+
+procedure TTenderForm.mnEditOnClick(Sender: TObject);
+begin
+  mnEditOn.Checked := True;
+  ViewMode := MEdit;
+  pnlEditOn.Visible := true;
+  tmrEditMode.Enabled := True;
 end;
 
 procedure TTenderForm.mnNewTenderClick(Sender: TObject);
@@ -353,6 +433,7 @@ var
   obj:string[30];
   tenderRes:integer;
 begin
+  mnEdit.Enabled := false;
   if TendHead <> nil then
     removeTender(TendHead);
   obj := InputBox('Новый тендер','По какому объекту объявить тендер?','1 Float House');
@@ -376,9 +457,14 @@ end;
 
 procedure TTenderForm.mnObjListClick(Sender: TObject);
 begin
+  mnEditOff.Checked := true;
+  mnEdit.Enabled := true;
+  ViewMode := MView;
   writeObjList(ListTable, ObjHead);
   mode := MObjList;
   Resize;
+  pnlEditOn.Visible := false;
+  tmrEditMode.Enabled := false;
 end;
 
 procedure TTenderForm.mnSaveAllClick(Sender: TObject);
@@ -391,9 +477,19 @@ end;
 procedure TTenderForm.mnWorkersListClick(Sender: TObject);
 begin
   mode := MWorkList;
+  mnEdit.Enabled := true;
+  mnEditOff.Checked := true;
+  ViewMode := MView;
   additionalTitle := '';
   writeAllWorkListWithContr(ListTable, ContHead);
   Resize;
+  pnlEditOn.Visible := false;
+  tmrEditMode.Enabled := false;
+end;
+
+procedure TTenderForm.tmrEditModeTimer(Sender: TObject);
+begin
+  pnlEditOn.Visible := False;
 end;
 
 end.

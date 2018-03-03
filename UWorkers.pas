@@ -32,8 +32,8 @@ type
 procedure writeWorkList(Grid:TStringGrid; const head:TWorkAdr);
 //procedure removeWorkList(var head:TContrAdr; const el:string);
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
-procedure insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+function insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
 procedure saveWorkFile(const head:TWorkAdr);
 
 implementation
@@ -77,8 +77,8 @@ begin
   end;
 end;
 
-procedure insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+function insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
 var
   temp:TWorkAdr;
 begin
@@ -96,6 +96,7 @@ begin
   temp^.Info.Company := company;
   temp^.Info.Salary := Salary;
   temp^.Info.ObjType := ObjType;
+  Result:= Integer(temp);
 end;
 
 
@@ -108,6 +109,7 @@ begin
   Grid.Cells[1,0] := 'Компания';
   Grid.Cells[2,0] := 'Зарплата';
   Grid.Cells[3,0] := 'Тип объекта';
+
   temp := head^.adr;
   while temp <> nil do
   begin
@@ -115,7 +117,7 @@ begin
     Grid.Cells[1,Grid.RowCount - 1] := temp^.Info.Company;
     Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.Salary);
     Grid.Cells[3,Grid.RowCount - 1] := temp^.Info.ObjType;
-    Grid.Cells[4,Grid.RowCount - 1] := 'Удалить';
+    Grid.Cells[4,Grid.RowCount - 1] := IntToStr( Integer(temp) );
     temp:=temp^.adr;
     Grid.RowCount := Grid.RowCount + 1;
   end;

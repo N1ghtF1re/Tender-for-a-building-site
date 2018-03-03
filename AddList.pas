@@ -86,19 +86,14 @@ begin
             st:=TenderForm.getAdditionalTitle;
           end;
 
-        if WorkerAdrOf(tenderform.getContHead, Trim(edtInput1.Text), st) = nil  then
-        begin
           if ( (Trim(cbbSetObject.Text) <> '') and (Trim(edtInput1.Text) <> '') and (Trim(edtInput4.Text) <> '') and (Trim(cbbSetObject.Text) <> '')) then
           begin
-
             TenderForm.addNewWorkers(edtInput1.Text, cbbSetObject.Text,st, StrToCurr(edtInput4.Text));
             Self.Close;
           end
           else
             ShowMessage('Поля не могут быть пустыми');
-        end
-        else
-          ShowMessage('Такой сотрудник уже есть');
+
       except on E: Exception do
         ShowMessage('Некорректный ввод')
       end;
