@@ -25,7 +25,8 @@ type
 // œ–Œ÷≈ƒ”–€ » ‘”Õ ÷»»
 procedure readContrFile(const head:TContrAdr);
 function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string):TWorkAdr;
-procedure removeWorkList(var head:TContrAdr; const intadr:integer);
+procedure removeWorkList(var head:TContrAdr; const intadr:integer); overload;
+procedure removeWorkList(var head:TContrAdr; const obj:string); overload;
 procedure editContrList(head:TContrAdr; name:string; newname:string);
 procedure removeContrList(var head:TContrAdr; const el:string);
 procedure saveContrFile(const head:TContrAdr);
@@ -37,8 +38,8 @@ function ContrAdrOf(const head: TContrAdr; name: string):TContrAdr;
 procedure writeWorkListWithContr(Grid: TStringGrid;var head:TContrAdr; const company:string);
 procedure writeAllWorkListWithContr(Grid: TStringGrid;var head:TContrAdr);
 procedure getCBBContrList(CBB: TComboBox; const head: TContrAdr);
-procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency);
-
+procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency); overload;
+procedure editWorkList(const head:TWorkAdr; newcompany:string); overload;
 implementation
 uses
   System.SysUtils;
@@ -262,7 +263,7 @@ begin
     while temp^.adr <> nil do
     begin
       temp2 := temp^.adr;
-      if Integer(temp) = intadr then
+      if Integer(temp2) = intadr then
       begin
         temp^.adr := temp2^.adr;
         dispose(temp2);
@@ -335,6 +336,41 @@ begin
       end;
 
       temp:= temp^.adr;
+    end;
+    t:=t^.Adr;
+  end;
+end;
+procedure editWorkList(const head:TWorkAdr; newcompany:string);
+var
+  Temp:TWorkAdr;
+begin
+  temp := head;
+  while temp <> nil do
+  begin
+    Temp^.Info.Company := newcompany;
+    Temp := Temp^.Adr;
+  end;
+end;
+
+procedure removeWorkList(var head:TContrAdr; const obj:string);
+var
+  t:TContrAdr;
+  temp,temp2:TWorkAdr;
+begin
+  t:=head^.Adr;
+  while t <> nil do
+  begin
+    temp := t.WorkersHead;
+    while temp^.adr <> nil do
+    begin
+      temp2 := temp^.adr;
+      if temp2.Info.ObjType = obj then
+      begin
+        temp^.adr := temp2^.adr;
+        dispose(temp2);
+      end
+      else
+        temp:= temp^.adr;
     end;
     t:=t^.Adr;
   end;

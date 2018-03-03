@@ -156,7 +156,7 @@ object TenderForm: TTenderForm
   end
   object tmrEditMode: TTimer
     Enabled = False
-    Interval = 4000
+    Interval = 3000
     OnTimer = tmrEditModeTimer
     Left = 528
     Top = 32

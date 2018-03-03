@@ -4,7 +4,7 @@ object TenderForm: TTenderForm
   HorzScrollBar.Style = ssFlat
   HorzScrollBar.Visible = False
   Caption = 'TenderForm'
-  ClientHeight = 374
+  ClientHeight = 254
   ClientWidth = 724
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,17 +22,16 @@ object TenderForm: TTenderForm
     Left = 0
     Top = 0
     Width = 724
-    Height = 374
+    Height = 254
     Align = alClient
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitTop = 8
     object ListTable: TStringGrid
       Left = 1
       Top = 1
       Width = 722
-      Height = 307
+      Height = 146
       Align = alClient
       ColCount = 1
       Ctl3D = False
@@ -44,7 +43,9 @@ object TenderForm: TTenderForm
       GridLineWidth = 2
       ParentCtl3D = False
       TabOrder = 0
+      OnDrawCell = ListTableDrawCell
       OnMouseUp = ListTableMouseUp
+      ExplicitHeight = 187
       ColWidths = (
         64)
       RowHeights = (
@@ -56,7 +57,7 @@ object TenderForm: TTenderForm
     end
     object pnlBottom: TPanel
       Left = 1
-      Top = 308
+      Top = 188
       Width = 722
       Height = 65
       Align = alBottom
@@ -78,7 +79,32 @@ object TenderForm: TTenderForm
         DoubleBuffered = False
         ParentDoubleBuffered = False
         TabOrder = 0
+        OnClick = btnAddClick
       end
+    end
+    object pnlEditOn: TPanel
+      Left = 1
+      Top = 147
+      Width = 722
+      Height = 41
+      Align = alBottom
+      BevelOuter = bvNone
+      Caption = 
+        #1056#1077#1078#1080#1084' '#1088#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1103' '#1072#1082#1090#1080#1074#1080#1088#1086#1074#1072#1085'. '#1063#1090#1086#1073#1099' '#1086#1090#1088#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1090#1100' '#1087#1086#1083#1077' - '#1087 +
+        #1088#1086#1089#1090#1086' '#1082#1083#1080#1082#1085#1080#1090#1077' '#1087#1086' '#1085#1077#1084#1091'. '#1042#1089#1077' '#1073#1077#1079#1091#1084#1085#1086' '#1087#1088#1086#1089#1090#1086'!'
+      Color = clGrayText
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWhite
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 2
+      Visible = False
+      ExplicitLeft = 320
+      ExplicitTop = 141
+      ExplicitWidth = 185
     end
   end
   object mm: TMainMenu
@@ -113,5 +139,26 @@ object TenderForm: TTenderForm
         OnClick = mnNewTenderClick
       end
     end
+    object mnEdit: TMenuItem
+      Caption = #1056#1077#1076#1072#1082#1090#1080#1088#1086#1074#1072#1085#1080#1077
+      object mnEditOn: TMenuItem
+        Caption = #1042#1082#1083#1102#1095#1080#1090#1100
+        RadioItem = True
+        OnClick = mnEditOnClick
+      end
+      object mnEditOff: TMenuItem
+        Caption = #1042#1099#1082#1083#1102#1095#1080#1090#1100
+        Checked = True
+        RadioItem = True
+        OnClick = mnEditOffClick
+      end
+    end
+  end
+  object tmrEditMode: TTimer
+    Enabled = False
+    Interval = 2000
+    OnTimer = tmrEditModeTimer
+    Left = 528
+    Top = 32
   end
 end

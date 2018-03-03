@@ -24,20 +24,21 @@ type
 
 // œ–Œ÷≈ƒ”–€ » ‘”Õ ÷»»
 procedure readContrFile(const head:TContrAdr);
-function WorkerAdrOf(var head:TContrAdr; const name:string; const comp:string):TWorkAdr;
-procedure removeWorkList(var head:TContrAdr; const el:string);
+function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string):TWorkAdr;
+procedure removeWorkList(var head:TContrAdr; const intadr:integer);
 procedure editContrList(head:TContrAdr; name:string; newname:string);
 procedure removeContrList(var head:TContrAdr; const el:string);
 procedure saveContrFile(const head:TContrAdr);
 procedure insertContrList(const head: TContrAdr; name:string);
 procedure writeContrList(Grid: TStringGrid;var head:TContrAdr);
-procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+function insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
 function ContrAdrOf(const head: TContrAdr; name: string):TContrAdr;
 procedure writeWorkListWithContr(Grid: TStringGrid;var head:TContrAdr; const company:string);
 procedure writeAllWorkListWithContr(Grid: TStringGrid;var head:TContrAdr);
 procedure getCBBContrList(CBB: TComboBox; const head: TContrAdr);
-
+procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency); overload;
+procedure editWorkList(const head:TWorkAdr; newcompany:string); overload;
 implementation
 uses
   System.SysUtils;
@@ -164,8 +165,8 @@ begin
   Grid.RowCount := Grid.RowCount - 1;
 end;
 
-procedure insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House');
+function insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
+        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
 var
   temp:TContrAdr;
 begin
@@ -174,7 +175,7 @@ begin
   begin
     if (temp^.Info.Name = company) then
     begin
-      insertWorkList(temp^.WorkersHead, company, Name, Salary, ObjType);
+      Result := insertWorkList(temp^.WorkersHead, company, Name, Salary, ObjType);
       Exit;
     end;
     temp:=temp^.Adr;
@@ -249,7 +250,7 @@ begin
   end;
 end;
 
-procedure removeWorkList(var head:TContrAdr; const el:string);
+procedure removeWorkList(var head:TContrAdr; const intadr:integer);
 var
   t:TContrAdr;
   temp,temp2:TWorkAdr;
@@ -261,7 +262,7 @@ begin
     while temp^.adr <> nil do
     begin
       temp2 := temp^.adr;
-      if temp2^.Info.Name = el then
+      if Integer(temp2) = intadr then
       begin
         temp^.adr := temp2^.adr;
         dispose(temp2);
@@ -273,12 +274,13 @@ begin
   end;
 end;
 
-function WorkerAdrOf(var head:TContrAdr; const name:string; const comp:string):TWorkAdr;
+function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string):TWorkAdr;
 var
   t:TContrAdr;
   temp:TWorkAdr;
 begin
   t:=head^.Adr;
+  Result := nil;
   while t <> nil do
   begin
     temp := t.WorkersHead;
@@ -312,4 +314,40 @@ begin
   end;
 end;
 
+procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency);
+var
+  t:TContrAdr;
+  temp:TWorkAdr;
+begin
+  t:=head^.Adr;
+  while t <> nil do
+  begin
+    temp := t.WorkersHead;
+    while temp <> nil do
+    begin
+      if (Integer(temp) = intadr) then
+      begin
+        temp^.Info.Name := newname;
+        temp^.Info.Company := newcomp;
+        temp^.Info.Salary := newsalary;
+        temp^.Info.ObjType := newobj;
+        Exit;
+      end;
+
+      temp:= temp^.adr;
+    end;
+    t:=t^.Adr;
+  end;
+end;
+procedure editWorkList(const head:TWorkAdr; newcompany:string);
+var
+  Temp:TWorkAdr;
+begin
+  temp := head;
+  while temp <> nil do
+  begin
+    Temp^.Info.Company := newcompany;
+    Temp := Temp^.Adr;
+  end;
+end;
 end.
