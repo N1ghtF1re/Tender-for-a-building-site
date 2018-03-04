@@ -123,6 +123,7 @@ procedure saveall;
 begin
   saveContrFile(ContHead, ContrFile,WorkFile);
   saveObjFile(ObjHead, ObjFile);
+  isChanged := false;
 end;
 
 procedure TTenderForm.addNewObj(obj:string; workers: Integer; money: Currency);
@@ -137,6 +138,7 @@ begin
     Cells[3,RowCount - 1] := 'Удалить';
     Resize;
   end;
+  isChanged := true;
 end;
 
 function TTenderForm.getAdditionalTitle():String;
@@ -159,6 +161,7 @@ begin
     Cells[4, RowCount-1] := IntToStr(intadr);
     Resize;
   end;
+  isChanged := true;
 end;
 
 procedure TTenderForm.addNewCompany(CompName:string);
@@ -172,6 +175,7 @@ begin
     Cells[2, RowCount-1] := 'Удалить';
     Resize;
   end;
+  isChanged := true;
 end;
 
 function TTenderForm.getObjHead():TObjAdr;
@@ -216,12 +220,11 @@ begin
       end;
       mrNo: Action := caFree;
     end;
-
-
   end;
 end;
 
 procedure TTenderForm.FormCreate(Sender: TObject);
+
 begin
   ObjFile := GetCurrentDir + '\objects.brakh';
   ContrFile := GetCurrentDir + '\contractors.brakh';
@@ -242,7 +245,10 @@ begin
   else
     mnSort.Visible := false;
   if (ListTable.Cells[0,1] = 'Ничего не найдено') and (ListTable.RowCount > 2) then
-    removeRow(ListTable, 1); 
+  begin
+    removeRow(ListTable, 1);
+    mnEdit.Enabled := true;
+  end;
   if ListTable.RowCount = 1 then
   begin
     mnEdit.Enabled := false;

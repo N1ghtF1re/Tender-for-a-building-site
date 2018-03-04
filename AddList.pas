@@ -127,7 +127,7 @@ begin
         lblInput4.Visible := false;
         lblInput2.Caption := 'Минимальное кол-во рабочих';
         edtInput2.Text := '';
-        lblInput3.Caption := 'Цента материалов';
+        lblInput3.Caption := 'Цена материалов';
         edtInput3.Text := '';
       end;
       MContrList:
