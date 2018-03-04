@@ -25,17 +25,17 @@ type
       Adr: TWorkAdr;           // ¿‰ÂÒ ÒÎÂ‰ ˝ÎÂÏÂÌÚ ÒÔËÒÍ‡
     end;
     {  ***** —œ»—Œ  –¿¡Œ◊»’  ŒÕ≈÷ ***** }
-  const
-    WorkFile = 'workers.brakh';
+
 
 // œ–Œ÷≈ƒ”–€ » ‘”Õ ÷»»
 procedure writeWorkList(Grid:TStringGrid; const head:TWorkAdr);
 //procedure removeWorkList(var head:TContrAdr; const el:string);
-procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
+procedure readFromFileWithContractors(const head: TWorkAdr; contr: string; const WorkFile:String);
 function insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
         const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
-procedure saveWorkFile(const head:TWorkAdr);
+procedure saveWorkFile(const head:TWorkAdr; const WorkFile:string);
 procedure writeSearchWorkListGrid(Grid: TStringGrid;var head:TWorkAdr; fio, comp, obj:string; salary: currency; n1,n2,n3,n4:byte);
+procedure removeAllWorkerList(head:TWorkAdr);
 
 implementation
 
@@ -43,7 +43,7 @@ implementation
 
 
 
-procedure readFromFileWithContractors(const head: TWorkAdr; contr: string);
+procedure readFromFileWithContractors(const head: TWorkAdr; contr: string; const WorkFile:String);
 var
   f: file of TWorkersInfo;
   Temp: TWorkAdr;
@@ -124,7 +124,7 @@ begin
   end;
 end;
 
-procedure saveWorkFile(const head:TWorkAdr);
+procedure saveWorkFile(const head:TWorkAdr; const WorkFile:string);
 var
   f: file of TWorkersInfo;
   temp: TWorkAdr;
@@ -210,4 +210,17 @@ begin
   end;
 end;
 
+procedure removeAllWorkerList(head:TWorkAdr);
+var
+  temp, temp2: TWorkAdr;
+begin
+  temp := head^.Adr;
+  while temp <> nil do
+  begin
+    temp2:=temp^.Adr;
+    dispose(temp);
+    temp:=temp2;
+  end;
+  head.Adr := nil;
+end;
 end.

@@ -23,13 +23,13 @@ type
   { *** СПИСОК ПОДРЯДЧИКОВ КОНЕЦ *** }
 
 // ПРОЦЕДУРЫ И ФУНКЦИИ
-procedure readContrFile(const head:TContrAdr);
+procedure readContrFile(const head:TContrAdr; const ContrFile, WorkFile: string);
 function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string):TWorkAdr;
 procedure removeWorkList(var head:TContrAdr; const intadr:integer); overload;
 procedure removeWorkList(var head:TContrAdr; const obj:string); overload;
 procedure editContrList(head:TContrAdr; name:string; newname:string);
 procedure removeContrList(var head:TContrAdr; const el:string);
-procedure saveContrFile(const head:TContrAdr);
+procedure saveContrFile(const head:TContrAdr; const ContrFile, WorkFile: string);
 procedure insertContrList(const head: TContrAdr; name:string);
 procedure writeContrList(Grid: TStringGrid;var head:TContrAdr);
 function insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
@@ -42,11 +42,14 @@ procedure editWorkList(const head:TContrAdr; const intadr: integer; const newnam
 procedure editWorkList(const head:TWorkAdr; newcompany:string); overload;
 procedure searchContrList(head: TContrAdr; Grid:TStringGrid; name:string; n1:byte);
 procedure searchWorkerList(Grid: TStringGrid;var head:TContrAdr; fio, comp, obj:string; salary: currency; n1,n2,n3,n4:byte);
+procedure removeAllContrList(head: TContrAdr);
+procedure removeOnlyAllWorkers(const head:TContrAdr);
+procedure readOnlyWorkers(const head:TContrAdr; WorkFile:string);
+
 implementation
 uses
   System.SysUtils;
-const
-  ContrFile = 'contractors.brakh';
+
 
 { Функция ContrAdrOf возвращает адрес элемента списка с нужным полем name
   Если значение не найдено, возвращается nil }
@@ -65,7 +68,7 @@ begin
 end;
 
 { Читаем из типизированного файла записи и создаем список }
-procedure readContrFile(const head:TContrAdr);
+procedure readContrFile(const head:TContrAdr; const ContrFile, WorkFile: string);
 var
   f: file of TContractorsInfo;
   Temp: TContrAdr;
@@ -86,7 +89,7 @@ begin
       read(f, Temp^.Info);
       new(Temp^.WorkersHead);
       Temp^.WorkersHead.Adr := nil;
-      readFromFileWithContractors(temp^.WorkersHead, temp^.Info.Name);
+      readFromFileWithContractors(temp^.WorkersHead, temp^.Info.Name, WorkFile);
       // Читаем из файла работников подрядчика
     end;
     close(f);
@@ -101,7 +104,7 @@ begin
 end;
 
 { Сохраняем список в типизированный файл}
-procedure saveContrFile(const head:TContrAdr);
+procedure saveContrFile(const head:TContrAdr; const ContrFile, WorkFile: string);
 var
   f: file of TContractorsInfo;
   f2: file of TWorkersInfo;
@@ -116,7 +119,7 @@ begin
   while temp <> nil do
   begin
     write(f, temp^.Info);
-    saveWorkFile(temp^.WorkersHead);
+    saveWorkFile(temp^.WorkersHead, WorkFile);
     temp:=temp^.adr;
   end;
   close(F);
@@ -428,4 +431,47 @@ begin
   end;
   Grid.RowCount := Grid.RowCount - 1;
 end;
+
+procedure removeAllContrList(head: TContrAdr);
+var
+  temp, temp2: TContrAdr;
+begin
+  temp := head^.Adr;
+  while temp <> nil do
+  begin
+    temp2:=temp^.Adr;
+    //ShowMessage(temp^.Info.Name);
+    dispose(temp);
+    removeAllWorkerList(temp.WorkersHead);
+    temp:=temp2;
+  end;
+  head.Adr := nil;
+end;
+
+procedure removeOnlyAllWorkers(const head:TContrAdr);
+var
+temp:TContrAdr;
+begin
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    // ShowMessage(temp^.Info.Name);
+    removeAllWorkerList(temp.WorkersHead);
+    temp := temp^.Adr;
+  end;
+end;
+
+procedure readOnlyWorkers(const head:TContrAdr; WorkFile:string);
+var
+temp:TContrAdr;
+begin
+  temp := head^.adr;
+  while temp <> nil do
+  begin
+    readFromFileWithContractors(temp^.WorkersHead, temp^.Info.Name, WorkFile);
+    temp := temp^.Adr;
+  end;
+end;
+
+
 end.

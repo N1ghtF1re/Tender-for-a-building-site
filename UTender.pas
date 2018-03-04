@@ -68,7 +68,7 @@ begin
         end;
         WorkTemp := WorkTemp^.Adr;
       end;
-      if Workers <> 0 then
+      if Workers >= OTemp.Info.Workers then
       begin
         New(TendTemp.adr);
         TendTemp := TendTemp^.adr;

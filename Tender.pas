@@ -34,6 +34,13 @@ type
     mniSearchObj: TMenuItem;
     mniSearchContr: TMenuItem;
     mniSearchWorkers: TMenuItem;
+    mniOpenObj: TMenuItem;
+    dlgOpenFile: TOpenDialog;
+    mniOpenContr: TMenuItem;
+    mniOpenWorkers: TMenuItem;
+    mnSort: TMenuItem;
+    mniSortPrice: TMenuItem;
+    mniSortSpeed: TMenuItem;
     function getObjHead():TObjAdr;
     procedure FormCreate(Sender: TObject);
     function getAdditionalTitle():String;
@@ -65,6 +72,14 @@ type
     procedure mniSearchWorkersClick(Sender: TObject);
     procedure SearchWorker(const fio, comp, obj:string; salary: Currency; n1,n2,n3,n4:byte);
     procedure SearchObj(obj:string; minwork: integer; money: Currency; n1,n2,n3:Byte);
+    procedure mniOpenObjClick(Sender: TObject);
+    procedure rewriteObjects;
+    procedure mniOpenContrClick(Sender: TObject);
+    procedure rewriteContractors;
+    procedure mniOpenWorkersClick(Sender: TObject);
+    procedure rewriteWorkers;
+    procedure mniSortPriceClick(Sender: TObject);
+    procedure mniSortSpeedClick(Sender: TObject);
  
   private
   public
@@ -82,6 +97,7 @@ var
   ContHead: TContrAdr;
   N:integer;
   additionalTitle: string;
+  ObjFile,ContrFile, WorkFile:string;
 
 implementation
 
@@ -176,9 +192,12 @@ end;
 
 procedure TTenderForm.FormCreate(Sender: TObject);
 begin
+  ObjFile := GetCurrentDir + '\objects.brakh';
+  ContrFile := GetCurrentDir + '\contractors.brakh';
+  WorkFile := GetCurrentDir + '\workers.brakh';
   createLists;
-  readObjFile(ObjHead);
-  readContrFile(ContHead);
+  readObjFile(ObjHead,ObjFile);
+  readContrFile(ContHead, ContrFile, WorkFile);
   mode := MContrList;
   writeContrList(ListTable, ContHead);
 end;
@@ -186,6 +205,10 @@ end;
 procedure TTenderForm.FormResize(Sender: TObject);
 var i:Byte;
 begin
+  if mode = MTender then
+    mnSort.Visible := True
+  else
+    mnSort.Visible := false;
   if (ListTable.Cells[0,1] = 'Ничего не найдено') and (ListTable.RowCount > 2) then
     removeRow(ListTable, 1); 
   if ListTable.RowCount = 1 then
@@ -225,7 +248,6 @@ begin
     end;
   end;
 end;
-
 
 procedure TTenderForm.ListTableDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
@@ -472,14 +494,19 @@ begin
     end;
   end;
 end;
-
-procedure TTenderForm.mniContrListClick(Sender: TObject);
+procedure TTenderForm.rewriteContractors;
 begin
   setEditOff;
   Mode := MContrList;
   writeContrList(ListTable, ContHead);
   Resize;
 end;
+
+procedure TTenderForm.mniContrListClick(Sender: TObject);
+begin
+  rewriteContractors;
+end;
+
 
 procedure TTenderForm.mniEditOffClick(Sender: TObject);
 begin
@@ -533,16 +560,60 @@ end;
 
 procedure TTenderForm.mniObjListClick(Sender: TObject);
 begin
+  rewriteObjects;
+end;
+
+procedure TTenderForm.rewriteObjects;
+begin
   setEditOff;
   writeObjList(ListTable, ObjHead);
   mode := MObjList;
   Resize;
 end;
 
+procedure TTenderForm.mniOpenContrClick(Sender: TObject);
+begin
+  dlgOpenFile.InitialDir := GetCurrentDir;
+  dlgOpenFile.FileName := 'contractors.brakh';
+  if dlgOpenFile.Execute then
+  begin
+      ContrFile := dlgOpenFile.FileName;
+      removeAllContrList(ContHead);
+      readContrFile(ContHead, ContrFile, WorkFile);
+      rewriteContractors;
+  end;
+end;
+
+procedure TTenderForm.mniOpenObjClick(Sender: TObject);
+begin
+  dlgOpenFile.InitialDir := GetCurrentDir;
+  dlgOpenFile.FileName := 'objects.brakh';
+  if dlgOpenFile.Execute then
+  begin
+      ObjFile := dlgOpenFile.FileName;
+      removeAllObjList(ObjHead);
+      readObjFile(ObjHead, ObjFile);
+      rewriteObjects;
+  end;
+end;
+
+procedure TTenderForm.mniOpenWorkersClick(Sender: TObject);
+begin
+  dlgOpenFile.InitialDir := GetCurrentDir;
+  dlgOpenFile.FileName := 'workers.brakh';
+  if dlgOpenFile.Execute then
+  begin
+      WorkFile := dlgOpenFile.FileName;
+      removeOnlyAllWorkers(ContHead);
+      readOnlyWorkers(ContHead, WorkFile);
+      rewriteWorkers;
+  end;
+end;
+
 procedure TTenderForm.mniSaveAllClick(Sender: TObject);
 begin
-  saveContrFile(ContHead);
-  saveObjFile(ObjHead);
+  saveContrFile(ContHead, ContrFile,WorkFile);
+  saveObjFile(ObjHead, ObjFile);
   ShowMessage('Успешно сохранено');
 end;
 
@@ -564,13 +635,30 @@ begin
   SearchForm.ShowModal;
 end;
 
-procedure TTenderForm.mniWorkersListClick(Sender: TObject);
+procedure TTenderForm.mniSortPriceClick(Sender: TObject);
+begin
+  sortTenders(TendHead, field3sort);
+  writeTendList(ListTable, TendHead);
+end;
+
+procedure TTenderForm.mniSortSpeedClick(Sender: TObject);
+begin
+  sortTenders(TendHead, field2sort);
+  writeTendList(ListTable, TendHead);
+end;
+
+procedure TTenderForm.rewriteWorkers;
 begin
   setEditOff;
   mode := MWorkList;
   additionalTitle := '';
   writeAllWorkListWithContr(ListTable, ContHead);
   Resize;
+end;
+
+procedure TTenderForm.mniWorkersListClick(Sender: TObject);
+begin
+  rewriteWorkers;
 end;
 
 procedure TTenderForm.tmrEditModeTimer(Sender: TObject);

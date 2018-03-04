@@ -26,20 +26,22 @@ type
 
 // ПРОЦЕДУРЫ И ФУНКЦИИ
 procedure getCBBObjectsList(CBB: TComboBox; const head: TObjAdr);
-procedure readObjFile(const head:TObjAdr);
-procedure saveObjFile(const head:TObjAdr);
+procedure readObjFile(const head:TObjAdr; ObjFile:string);
+procedure saveObjFile(const head:TObjAdr; ObjFile:string);
 procedure removeObjList(var head:TObjAdr; const el:string);
 procedure insertObjList(const head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
 procedure writeObjList(Grid:TStringGrid; const head:TObjAdr);
 function ObjAdrOf(head: TObjAdr; name: string):TObjAdr;
 procedure editObjList(head:TObjAdr; name:string; newname:string; newwork: integer; newmoney: Currency );
 procedure searchObjList(head:TObjAdr;Grid:TStringGrid;obj:string; minwork: integer; money: Currency; n1,n2,n3:integer);
+procedure removeAllObjList(head:TObjAdr);
+
 implementation
 uses
- System.SysUtils;
+ System.SysUtils, tender;
 
-const
-    ObjFile = 'objects.brakh'; // Файл объектов
+//const
+    //ObjFile = 'objects.brakh'; // Файл объектов
 
 { Функция ObjAdrOf возвращает адрес элемента списка с нужным полем name
   Если значение не найдено, возвращается nil }
@@ -62,7 +64,7 @@ end;
 { Процедура readObjFile читает  типизированный файл, если его нет, создает его
 и заполняет список объектов из файла }
 
-procedure readObjFile(const head:TObjAdr);
+procedure readObjFile(const head:TObjAdr; ObjFile:string);
 var
   f: file of TObjInfo;
   OTemp: TObjAdr;
@@ -95,7 +97,7 @@ begin
 end;
 
 { Сохранения списка в типизированный файл }
-procedure saveObjFile(const head:TObjAdr);
+procedure saveObjFile(const head:TObjAdr; ObjFile:string);
 var
   f: file of TObjInfo;
   temp: TObjAdr;
@@ -264,5 +266,17 @@ begin
   end;
   Grid.RowCount := Grid.RowCount - 1;
 end;
-
+procedure removeAllObjList(head:TObjAdr);
+var 
+  temp, temp2: tobjadr;
+begin
+  temp := head^.Adr;
+  while temp <> nil do
+  begin
+    temp2:=temp^.Adr;
+    dispose(temp);
+    temp:=temp2;
+  end;
+  head.Adr := nil;
+end;
 end.

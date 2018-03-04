@@ -24,10 +24,6 @@ object SearchForm: TSearchForm
     Color = clHighlightText
     ParentBackground = False
     TabOrder = 0
-    ExplicitLeft = 96
-    ExplicitTop = 96
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object Label1: TLabel
       Left = 32
       Top = 32

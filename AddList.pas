@@ -1,3 +1,10 @@
+{*******************************************************}
+{       ADD NEW ELEMENT TO LIST                         }
+{       Lab ¹2. Dynamic Lists                           }
+{       Copyright (c) 2018 BSUIR                        }
+{       Created by Parnkratiew Alexandr                 }
+{                                                       }
+{*******************************************************}
 unit AddList;
 
 interface

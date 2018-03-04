@@ -1,3 +1,10 @@
+{*******************************************************}
+{       SEARCH ELEMENTS WITH FILTER                     }
+{       Lab ¹2. Dynamic Lists                           }
+{       Copyright (c) 2018 BSUIR                        }
+{       Created by Parnkratiew Alexandr                 }
+{                                                       }
+{*******************************************************}
 unit USearch;
 
 interface
