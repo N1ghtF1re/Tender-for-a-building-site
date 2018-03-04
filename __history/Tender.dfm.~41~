@@ -4,7 +4,7 @@ object TenderForm: TTenderForm
   HorzScrollBar.Style = ssFlat
   HorzScrollBar.Visible = False
   Caption = 'TenderForm'
-  ClientHeight = 306
+  ClientHeight = 286
   ClientWidth = 724
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,17 +22,16 @@ object TenderForm: TTenderForm
     Left = 0
     Top = 0
     Width = 724
-    Height = 306
+    Height = 286
     Align = alClient
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitHeight = 254
     object ListTable: TStringGrid
       Left = 1
       Top = 1
       Width = 722
-      Height = 198
+      Height = 178
       Align = alClient
       ColCount = 1
       Ctl3D = False
@@ -46,7 +45,6 @@ object TenderForm: TTenderForm
       TabOrder = 0
       OnDrawCell = ListTableDrawCell
       OnMouseUp = ListTableMouseUp
-      ExplicitHeight = 187
       ColWidths = (
         64)
       RowHeights = (
@@ -58,7 +56,7 @@ object TenderForm: TTenderForm
     end
     object pnlBottom: TPanel
       Left = 1
-      Top = 240
+      Top = 220
       Width = 722
       Height = 65
       Align = alBottom
@@ -70,7 +68,6 @@ object TenderForm: TTenderForm
       ParentCtl3D = False
       ShowCaption = False
       TabOrder = 1
-      ExplicitTop = 188
       object btnAdd: TButton
         Left = 0
         Top = 0
@@ -86,7 +83,7 @@ object TenderForm: TTenderForm
     end
     object pnlEditOn: TPanel
       Left = 1
-      Top = 199
+      Top = 179
       Width = 722
       Height = 41
       Align = alBottom
@@ -104,9 +101,6 @@ object TenderForm: TTenderForm
       ParentFont = False
       TabOrder = 2
       Visible = False
-      ExplicitLeft = 320
-      ExplicitTop = 141
-      ExplicitWidth = 185
     end
   end
   object mm: TMainMenu
@@ -122,6 +116,14 @@ object TenderForm: TTenderForm
         Caption = #1054#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083' '#1086#1073#1098#1077#1082#1090#1086#1074
         OnClick = mniOpenObjClick
       end
+      object mniOpenContr: TMenuItem
+        Caption = #1054#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083' '#1087#1086#1076#1088#1103#1076#1095#1080#1082#1086#1074
+        OnClick = mniOpenContrClick
+      end
+      object mniOpenWorkers: TMenuItem
+        Caption = #1054#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083' '#1088#1072#1073#1086#1095#1080#1093
+        OnClick = mniOpenWorkersClick
+      end
     end
     object mnLists: TMenuItem
       Caption = #1057#1087#1080#1089#1082#1080
@@ -136,13 +138,6 @@ object TenderForm: TTenderForm
       object mniWorkersList: TMenuItem
         Caption = #1056#1072#1073#1086#1095#1080#1077
         OnClick = mniWorkersListClick
-      end
-    end
-    object mniTender: TMenuItem
-      Caption = #1058#1077#1085#1076#1077#1088
-      object mnNewTender: TMenuItem
-        Caption = #1053#1086#1074#1099#1081' '#1090#1077#1085#1076#1077#1088
-        OnClick = mnNewTenderClick
       end
     end
     object mnEdit: TMenuItem
@@ -174,6 +169,24 @@ object TenderForm: TTenderForm
         OnClick = mniSearchWorkersClick
       end
     end
+    object mniTender: TMenuItem
+      Caption = #1058#1077#1085#1076#1077#1088
+      object mnNewTender: TMenuItem
+        Caption = #1053#1086#1074#1099#1081' '#1090#1077#1085#1076#1077#1088
+        OnClick = mnNewTenderClick
+      end
+    end
+    object mnSort: TMenuItem
+      Caption = #1057#1086#1088#1090#1080#1088#1086#1074#1082#1072
+      object mniSortPrice: TMenuItem
+        Caption = #1055#1086' '#1094#1077#1085#1077
+        OnClick = mniSortPriceClick
+      end
+      object mniSortSpeed: TMenuItem
+        Caption = #1055#1086' '#1089#1082#1086#1088#1086#1089#1090#1080
+        OnClick = mniSortSpeedClick
+      end
+    end
   end
   object tmrEditMode: TTimer
     Enabled = False
@@ -182,8 +195,9 @@ object TenderForm: TTenderForm
     Left = 528
     Top = 32
   end
-  object dlgOpenObj: TOpenDialog
-    InitialDir = 'd:/'
+  object dlgOpenFile: TOpenDialog
+    Filter = 'Tender files only|*.brakh|All files|*'
+    InitialDir = 'd:\'
     Left = 256
     Top = 96
   end

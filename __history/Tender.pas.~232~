@@ -80,6 +80,7 @@ type
     procedure rewriteWorkers;
     procedure mniSortPriceClick(Sender: TObject);
     procedure mniSortSpeedClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
  
   private
   public
@@ -98,6 +99,7 @@ var
   N:integer;
   additionalTitle: string;
   ObjFile,ContrFile, WorkFile:string;
+  isChanged: Boolean;
 
 implementation
 
@@ -190,6 +192,14 @@ begin
 end;
 
 
+procedure TTenderForm.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  if isChanged then
+  begin
+    ShowMessage('kek');
+  end;
+end;
+
 procedure TTenderForm.FormCreate(Sender: TObject);
 begin
   ObjFile := GetCurrentDir + '\objects.brakh';
@@ -200,11 +210,16 @@ begin
   readContrFile(ContHead, ContrFile, WorkFile);
   mode := MContrList;
   writeContrList(ListTable, ContHead);
+  isChanged := false;
 end;
 
 procedure TTenderForm.FormResize(Sender: TObject);
 var i:Byte;
 begin
+  if mode = MTender then
+    mnSort.Visible := True
+  else
+    mnSort.Visible := false;
   if (ListTable.Cells[0,1] = 'Ничего не найдено') and (ListTable.RowCount > 2) then
     removeRow(ListTable, 1); 
   if ListTable.RowCount = 1 then
@@ -411,18 +426,21 @@ begin
       ListTable.Cells[ACol, ARow]);
     inptext := Trim(inptext);
     if (ListTable.Cells[ACol, ARow] <> inptext) and (inptext <> '')  then
-    case mode of
-      MObjList:
-      begin
-        editObjData(inptext, ACol, ARow);
-      end;
-      MContrList:
-      begin
-        editContrData(inptext, ACol, ARow);
-      end;
-      MWorkList:
-      begin
-        editWorkersData(inptext,ACol,ARow);
+    begin
+      isChanged := true;
+      case mode of
+        MObjList:
+        begin
+          editObjData(inptext, ACol, ARow);
+        end;
+        MContrList:
+        begin
+          editContrData(inptext, ACol, ARow);
+        end;
+        MWorkList:
+        begin
+          editWorkersData(inptext,ACol,ARow);
+        end;
       end;
     end;
   end;
@@ -444,6 +462,7 @@ begin
       begin
         if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!' + #10#13 + 'При удалении подрядчика, будут удалены все его сотрудники',mtCustom,[mbYes,mbNo], 0) = mrYes then
         begin
+          isChanged := true;
           removeContrList(ContHead, ListTable.Cells[0, ARow]);
           removeRow(ListTable, ARow);
         end;
@@ -456,6 +475,7 @@ begin
       begin
         if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!' + #10#13 + 'При удалении объекта будут удалены все рабочие, которые могут строить этот объект',mtCustom,[mbYes,mbNo], 0) = mrYes then
         begin
+          isChanged := true;
           removeObjList(ObjHead, ListTable.Cells[0, ARow]);
           removeWorkList(ContHead,ListTable.Cells[0, ARow]);
           removeRow(ListTable, ARow);
@@ -469,6 +489,7 @@ begin
       begin
         if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!',mtCustom,[mbYes,mbNo], 0) = mrYes then
         begin
+          isChanged := true;
           removeWorkList(ContHead, StrToInt(ListTable.Cells[4,ARow]));
           removeRow(ListTable, ARow);
         end;

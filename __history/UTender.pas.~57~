@@ -23,10 +23,13 @@ type
     info: TTenderInfo;
     adr: TTendAdr;
   end;
+  TSortMode = function(r1, r2: TTenderInfo): Boolean;
 function newTender(var N:integer;var TendHead:TTendAdr; const OHead: TObjAdr;const ContHead: TContrAdr; const obj: string): integer;
 procedure writeTendList(Grid:TStringGrid; const head:TTendAdr);
-procedure sortTenders(const head:TTendAdr);
+procedure sortTenders(const head:TTendAdr; mode: TSortMode);
 procedure removeTender(TendHead: TTendAdr);
+function field2sort (r1, r2: TTenderInfo): Boolean;
+function field3sort (r1, r2: TTenderInfo): Boolean;
 
 implementation
 
@@ -65,7 +68,7 @@ begin
         end;
         WorkTemp := WorkTemp^.Adr;
       end;
-      if Workers <> 0 then
+      if Workers >= OTemp.Info.Workers then
       begin
         New(TendTemp.adr);
         TendTemp := TendTemp^.adr;
@@ -83,7 +86,17 @@ begin
   end;
 end;
 
-procedure sortTenders(const head:TTendAdr);
+function field2sort (r1, r2: TTenderInfo): Boolean;
+begin
+   Result:= r1.Workers < r2.Workers;
+end;
+
+function field3sort (r1, r2: TTenderInfo): Boolean;
+begin
+   Result:= r1.Money < r2.Money;
+end;
+
+procedure sortTenders(const head:TTendAdr; mode: TSortMode);
 var
   i:integer;
   temp: TTendAdr;
@@ -96,7 +109,8 @@ begin
     temp2 := temp.adr;
     while temp2.adr <> nil do
     begin
-      if (temp2.adr^.info.Money < temp.adr^.info.Money) then
+      if (mode(temp2^.Adr.info, temp^.Adr.info)) then
+      //
       begin
 
         t1 := temp2^.adr;
@@ -142,14 +156,13 @@ procedure removeTender(TendHead: TTendAdr);
 var
   temp, temp2: TTendAdr;
 begin
-  temp := TendHead^.adr;
+  temp := TendHead;
   while temp <> nil do
   begin
     temp2:=temp^.adr;
     Dispose(temp);
     temp := temp2;
   end;
-  //TendHead^.adr := nil;
 end;
 
 end.

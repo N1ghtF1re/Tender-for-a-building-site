@@ -41,6 +41,7 @@ var
   WorkTemp: TWorkAdr;
   Workers:integer;
   Money:Currency;
+
 begin
   Otemp := ObjAdrOf(OHead, obj);
   N := 0;

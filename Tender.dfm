@@ -14,6 +14,7 @@ object TenderForm: TTenderForm
   Font.Style = []
   Menu = mm
   OldCreateOrder = False
+  OnClose = FormClose
   OnCreate = FormCreate
   OnResize = FormResize
   PixelsPerInch = 96
@@ -123,6 +124,10 @@ object TenderForm: TTenderForm
       object mniOpenWorkers: TMenuItem
         Caption = #1054#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083' '#1088#1072#1073#1086#1095#1080#1093
         OnClick = mniOpenWorkersClick
+      end
+      object mniExit: TMenuItem
+        Caption = #1042#1099#1081#1090#1080
+        OnClick = mniExitClick
       end
     end
     object mnLists: TMenuItem
