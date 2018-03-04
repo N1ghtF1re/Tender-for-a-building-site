@@ -88,8 +88,6 @@ type
   public
     Mode: TMode;
     SearchMode: TMode;
-     //edm: TEdm;
-    { Public declarations }
   end;
 
 var

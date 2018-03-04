@@ -89,7 +89,7 @@ end;
 
 function field2sort (r1, r2: TTenderInfo): Boolean;
 begin
-   Result:= r1.Workers < r2.Workers;
+   Result:= r1.Workers > r2.Workers;
 end;
 
 function field3sort (r1, r2: TTenderInfo): Boolean;
