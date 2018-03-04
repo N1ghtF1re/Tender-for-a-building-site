@@ -238,6 +238,8 @@ end;
 procedure TTenderForm.FormResize(Sender: TObject);
 var i:Byte;
 begin
+
+
   if mode = MTender then
     mnSort.Visible := True
   else
@@ -256,7 +258,10 @@ begin
       ListTable.Cells[i,1] := '';
       
   end;
-  ListTable.DefaultColWidth := Trunc( pnlMain.Width / (ListTable.ColCount)) - 3;
+  if (GetWindowlong(ListTable.Handle, GWL_STYLE) and WS_VSCROLL) <> 0 then
+    ListTable.DefaultColWidth := Trunc( pnlMain.Width / (ListTable.ColCount)) - 40 div ListTable.ColCount
+  else
+    ListTable.DefaultColWidth := Trunc( pnlMain.Width / (ListTable.ColCount)) - 3;
   case mode of
     MObjList:
     begin
