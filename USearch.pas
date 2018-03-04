@@ -29,6 +29,9 @@ type
     cbb2: TComboBox;
     cbb3: TComboBox;
     cbb4: TComboBox;
+    lblHelp: TLabel;
+    lblHelpText: TLabel;
+    pnlSidebar: TPanel;
     procedure FormActivate(Sender: TObject);
     procedure clearAll;
     procedure btnSearchClick(Sender: TObject);

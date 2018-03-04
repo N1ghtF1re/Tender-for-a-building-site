@@ -1,10 +1,12 @@
 object AddListForm: TAddListForm
   Left = 0
   Top = 0
-  Caption = 'AddListForm'
+  Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1101#1083#1077#1084#1077#1085#1090' '#1074' '#1089#1087#1080#1089#1086#1082
   ClientHeight = 325
   ClientWidth = 533
   Color = clBtnFace
+  Constraints.MinHeight = 364
+  Constraints.MinWidth = 549
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
