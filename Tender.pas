@@ -214,7 +214,7 @@ begin
         Action := caFree;
         saveall;
       end;
-      mbNo: Action := caFree;
+      mrNo: Action := caFree;
     end;
 
 
