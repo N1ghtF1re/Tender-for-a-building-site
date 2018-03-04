@@ -30,7 +30,7 @@ type
 // œ–Œ÷≈ƒ”–€ » ‘”Õ ÷»»
 procedure writeWorkList(Grid:TStringGrid; const head:TWorkAdr);
 //procedure removeWorkList(var head:TContrAdr; const el:string);
-procedure readFromFileWithContractors(const head: TWorkAdr; contr: string; const WorkFile:String);
+procedure readFromFileWithContractors(const head: TWorkAdr; contr: string; const WorkFile:string);
 function insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
         const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
 procedure saveWorkFile(const head:TWorkAdr; const WorkFile:string);
@@ -43,7 +43,7 @@ implementation
 
 
 
-procedure readFromFileWithContractors(const head: TWorkAdr; contr: string; const WorkFile:String);
+procedure readFromFileWithContractors(const head: TWorkAdr; contr: string; const WorkFile:string);
 var
   f: file of TWorkersInfo;
   Temp: TWorkAdr;

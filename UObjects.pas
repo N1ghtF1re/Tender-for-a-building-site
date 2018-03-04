@@ -73,6 +73,7 @@ begin
   if fileExists(ObjFile) then
   begin
     Reset(f);
+    //ShowMessage(objfile);
     //Writeln('Read file ' + ObjFile);
     OTemp := Head;
     head^.Adr := nil;
@@ -81,7 +82,9 @@ begin
       new(OTemp^.adr);
       OTemp:=OTemp^.adr;
       OTemp^.adr:=nil;
+
       read(f, OTemp^.Info);
+      //ShowMessage(otemp^.Info.obType);
       //OTemp^.Info
 
     end;
@@ -267,7 +270,7 @@ begin
   Grid.RowCount := Grid.RowCount - 1;
 end;
 procedure removeAllObjList(head:TObjAdr);
-var 
+var
   temp, temp2: tobjadr;
 begin
   temp := head^.Adr;
@@ -280,3 +283,4 @@ begin
   head.Adr := nil;
 end;
 end.
+

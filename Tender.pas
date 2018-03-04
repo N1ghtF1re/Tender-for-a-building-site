@@ -67,7 +67,7 @@ type
     procedure editObjData(inptext:string; ACol,ARow: integer);
     procedure editContrData(inptext:string; ACol, ARow:Integer);
     procedure editWorkersData(inptext:string; ACol, ARow:integer);
-    procedure mniSearchObjClick(Sender: TObject); 
+    procedure mniSearchObjClick(Sender: TObject);
     procedure SearchContr(const contrname : string; n1:byte);
     procedure mniSearchContrClick(Sender: TObject);
     procedure mniSearchWorkersClick(Sender: TObject);
@@ -83,7 +83,7 @@ type
     procedure mniSortSpeedClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure mniExitClick(Sender: TObject);
- 
+
   private
   public
     Mode: TMode;
@@ -227,6 +227,7 @@ begin
   ObjFile := GetCurrentDir + '\objects.brakh';
   ContrFile := GetCurrentDir + '\contractors.brakh';
   WorkFile := GetCurrentDir + '\workers.brakh';
+  //ShowMessage(ObjFile);
   createLists;
   readObjFile(ObjHead,ObjFile);
   readContrFile(ContHead, ContrFile, WorkFile);
@@ -256,8 +257,10 @@ begin
     ListTable.Cells[0,1] := 'Ничего не найдено';
     for I := 1 to ListTable.ColCount-1 do
       ListTable.Cells[i,1] := '';
-      
-  end;
+
+  end
+  else if Mode <> MTender then
+    mnEdit.Enabled := true;
   if (GetWindowlong(ListTable.Handle, GWL_STYLE) and WS_VSCROLL) <> 0 then
     ListTable.DefaultColWidth := Trunc( pnlMain.Width / (ListTable.ColCount)) - 40 div ListTable.ColCount
   else
@@ -301,7 +304,7 @@ begin
       Rect.Left := Rect.Left - 5;
       Canvas.FillRect(Rect);
       Canvas.Font.Color := clWhite;
-      ListTable.Canvas.TextOut(Rect.Left + 5,Rect.Top+5, Cells[ACol, ARow]);  
+      ListTable.Canvas.TextOut(Rect.Left + 5,Rect.Top+5, Cells[ACol, ARow]);
     end;
     Canvas.Font.Color := clBlack;
   end;
@@ -318,9 +321,9 @@ begin
 end;
 
 procedure TTenderForm.editObjData(inptext:string; ACol,ARow: integer);
-var 
-  name_id, objtype:string[30]; 
-  minwork:integer; 
+var
+  name_id, objtype:string[30];
+  minwork:integer;
   money: Currency;
 begin
   // Сохраняем исходные данные
@@ -356,9 +359,9 @@ begin
       except on E: Exception do
         ShowMessage('Некорректный ввод')
       end;
-    end;          
+    end;
   end;
-  editObjList(ObjHead,name_id, objtype, minwork, money); // Изменяем список 
+  editObjList(ObjHead,name_id, objtype, minwork, money); // Изменяем список
 end;
 
 procedure TTenderForm.editContrData(inptext:string; ACol, ARow:Integer);
@@ -371,15 +374,15 @@ begin
     editContrList(ContHead, ListTable.Cells[0, ARow], inptext);
     ListTable.Cells[0, ARow] := inptext;
     contadr := ContrAdrOf(Conthead, inptext);
-    editWorkList(contadr.WorkersHead, inptext); 
-    // Изменяем название компании в полях рабочих                  
+    editWorkList(contadr.WorkersHead, inptext);
+    // Изменяем название компании в полях рабочих
   end
   else
-    ShowMessage('Такая компания уже зарегистрирована'); 
+    ShowMessage('Такая компания уже зарегистрирована');
 end;
 
 procedure TTenderForm.editWorkersData(inptext: string; ACol: Integer; ARow: Integer);
-var 
+var
   intadr : integer;
   fio,company, obj:string;
   salary: Currency;
@@ -393,7 +396,7 @@ begin
     0: // Изменение ФИО
     begin
       fio := inptext;
-      ListTable.Cells[ACol,ARow] := inptext;  
+      ListTable.Cells[ACol,ARow] := inptext;
     end;
     1: // Меняем компанию
     begin
@@ -401,16 +404,16 @@ begin
       begin
         company := inptext;
         // Перемещаем рабочего из прошлого элемента в списке подрядчика в новый
-        removeWorkList(ContHead, intadr); 
+        removeWorkList(ContHead, intadr);
         insertWorkListFromCompany(ContHead, company,fio, salary, obj);
         // Если мы не находимся в общем списке рабочих, то удаляем строку
         if additionalTitle <> '' then
         begin
-          removeRow(ListTable,ARow); 
+          removeRow(ListTable,ARow);
         end
         else
           ListTable.Cells[ACol,ARow] := inptext;
-      end 
+      end
       else
           ShowMessage('Такой компании нет ;c');
     end;
@@ -429,7 +432,7 @@ begin
       begin
         obj := inptext;
         ListTable.Cells[ACol,ARow] := inptext;
-      end 
+      end
       else
         ShowMessage('Такого объекта не существует');
     end;
@@ -670,19 +673,19 @@ end;
 
 procedure TTenderForm.mniSearchContrClick(Sender: TObject);
 begin
-  SearchMode := MContrList; 
+  SearchMode := MContrList;
   SearchForm.ShowModal;
 end;
 
 procedure TTenderForm.mniSearchObjClick(Sender: TObject);
 begin
-  SearchMode := MObjList; 
+  SearchMode := MObjList;
   SearchForm.ShowModal;
 end;
 
 procedure TTenderForm.mniSearchWorkersClick(Sender: TObject);
 begin
-  SearchMode := MWorkList; 
+  SearchMode := MWorkList;
   SearchForm.ShowModal;
 end;
 
@@ -719,14 +722,14 @@ end;
 
 procedure TTenderForm.SearchObj(obj:string; minwork: integer; money: Currency; n1, n2,n3:Byte);
 begin
-  searchObjList(ObjHead,ListTable, obj, minwork, money, n1, n2,n3);  
+  searchObjList(ObjHead,ListTable, obj, minwork, money, n1, n2,n3);
   Mode := MObjList;
   resize;
 end;
 
 procedure TTenderForm.SearchContr(const contrname : string; n1:byte);
 begin
-  searchContrList(ContHead,ListTable, contrname, n1);  
+  searchContrList(ContHead,ListTable, contrname, n1);
   Mode := MContrList;
   resize;
 end;
@@ -740,3 +743,4 @@ end;
 
 
 end.
+
