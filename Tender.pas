@@ -205,8 +205,8 @@ var repond: integer;
 begin
   if isChanged then
   begin
-    repond := MessageDlg('Вы внесли изменения. Если вы просто выйдете, они удалятся. Сохранить изменения перед выходом?',mtCustom,
-                             mbYesNoCancel, 0);
+    repond := MessageDlg('Вы внесли изменения. Если вы просто выйдете, они удалятся. Сохранить изменения перед выходом?',
+                          mtCustom, mbYesNoCancel, 0);
     case repond of
       mrCancel: Action := caNone;
       mrYes:
@@ -214,6 +214,7 @@ begin
         Action := caFree;
         saveall;
       end;
+      mbNo: Action := caFree;
     end;
 
 
