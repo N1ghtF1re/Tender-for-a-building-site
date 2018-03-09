@@ -99,7 +99,7 @@ begin
 
 end;
 
-{ Сохранения списка в типизированный файл }
+// Сохранения списка в типизированный файл }
 procedure saveObjFile(const head:TObjAdr; ObjFile:string);
 var
   f: file of TObjInfo;
@@ -194,16 +194,18 @@ end;
 procedure editObjList(head:TObjAdr; name:string; newname:string; newwork: integer; newmoney: Currency );
 var
   temp:TObjAdr;
+  flag: boolean;
 begin
   temp:= head;
-  while temp <> nil do
+  flag := true;
+  while (temp <> nil) and flag do
   begin
     if temp.Info.obType = name then
     begin
       temp.Info.obType := newname;
       temp.Info.Workers := newwork;
       temp.Info.MatCost := newmoney;
-      exit;
+      flag := false;
     end;
     temp := temp^.Adr;
   end;

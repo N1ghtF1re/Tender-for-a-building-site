@@ -194,17 +194,19 @@ end;
 procedure writeWorkListWithContr(Grid: TStringGrid;var head:TContrAdr; const company:string);
 var
   temp:TContrAdr;
+  flag:boolean;
 begin
   Grid.RowCount := 2;
   temp := head^.adr;
-  while temp <> nil do
+  flag:=true;
+  while (temp <> nil) and flag do
   begin
 
     if temp^.Info.Name = company then
     begin
       WriteWorkList(Grid, temp^.WorkersHead);
       Grid.RowCount := Grid.RowCount - 1;
-      exit;
+      flag := false;
     end;
     temp := temp^.Adr;
   end;
@@ -285,18 +287,20 @@ function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string)
 var
   t:TContrAdr;
   temp:TWorkAdr;
+  flag:boolean;
 begin
   t:=head^.Adr;
   Result := nil;
-  while t <> nil do
+  flag := true;
+  while (t <> nil) and flag do
   begin
     temp := t.WorkersHead;
-    while temp <> nil do
+    while (temp <> nil) and flag do
     begin
       if (temp^.Info.Name = name) and (temp^.Info.Company= comp) then
       begin
         Result := temp;
-        Exit;
+        flag := false;
       end;
 
       temp:= temp^.adr;
@@ -308,14 +312,16 @@ end;
 procedure editContrList(head:TContrAdr; name:string; newname:string);
 var
   temp:TContrAdr;
+  flag: boolean;
 begin
   temp:= head;
-  while temp <> nil do
+  flag := true;
+  while (temp <> nil) and flag do
   begin
     if temp.Info.Name = name then
     begin
       temp.Info.Name := newname;
-      exit;
+      flag := false;
     end;
     temp := temp^.Adr;
   end;
@@ -325,12 +331,14 @@ procedure editWorkList(const head:TContrAdr; const intadr: integer; const newnam
 var
   t:TContrAdr;
   temp:TWorkAdr;
+  flag: Boolean;
 begin
   t:=head^.Adr;
-  while t <> nil do
+  flag := true;
+  while (t <> nil) and flag do
   begin
     temp := t.WorkersHead;
-    while temp <> nil do
+    while (temp <> nil) and flag do
     begin
       if (Integer(temp) = intadr) then
       begin
@@ -338,7 +346,7 @@ begin
         temp^.Info.Company := newcomp;
         temp^.Info.Salary := newsalary;
         temp^.Info.ObjType := newobj;
-        Exit;
+        flag := false;
       end;
 
       temp:= temp^.adr;
