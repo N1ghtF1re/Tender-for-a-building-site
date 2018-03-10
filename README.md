@@ -1,4 +1,4 @@
-Subprograms table generator
+Tender for a building site
 --------------------
 The program stores in separate files information about the objects that need to be built, information about contractors and their employees.
 
