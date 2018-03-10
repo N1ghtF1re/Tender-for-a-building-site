@@ -204,13 +204,20 @@ end;
 
 procedure TTenderForm.FormClose(Sender: TObject; var Action: TCloseAction);
 var repond: integer;
+  prev:boolean;
 begin
+  prev:= mnEdit.Enabled;
+  mnEdit.Enabled := Enabled;
   if isChanged then
   begin
     repond := MessageDlg('Вы внесли изменения. Если вы просто выйдете, они удалятся. Сохранить изменения перед выходом?',
                           mtCustom, mbYesNoCancel, 0);
     case repond of
-      mrCancel: Action := caNone;
+      mrCancel: 
+      begin
+        Action := caNone;
+        mnEdit.Enabled := prev;
+      end;
       mrYes:
       begin
         Action := caFree;
@@ -222,12 +229,11 @@ begin
 end;
 
 procedure TTenderForm.FormCreate(Sender: TObject);
-
 begin
   ObjFile := GetCurrentDir + '\objects.brakh';
   ContrFile := GetCurrentDir + '\contractors.brakh';
   WorkFile := GetCurrentDir + '\workers.brakh';
-  //ShowMessage(ObjFile);
+
   createLists;
   readObjFile(ObjHead,ObjFile);
   readContrFile(ContHead, ContrFile, WorkFile);
@@ -239,8 +245,6 @@ end;
 procedure TTenderForm.FormResize(Sender: TObject);
 var i:Byte;
 begin
-
-
   if mode = MTender then
     mnSort.Visible := True
   else
@@ -256,11 +260,12 @@ begin
     ListTable.RowCount := 2;
     ListTable.Cells[0,1] := 'Ничего не найдено';
     for I := 1 to ListTable.ColCount-1 do
-      ListTable.Cells[i,1] := '';
+      ListTable.Cells[i,1] := ''; 
 
   end
   else if Mode <> MTender then
-    mnEdit.Enabled := true;
+    mnEdit.Enabled := true;     
+    
   if (GetWindowlong(ListTable.Handle, GWL_STYLE) and WS_VSCROLL) <> 0 then
     ListTable.DefaultColWidth := Trunc( pnlMain.Width / (ListTable.ColCount)) - 40 div ListTable.ColCount
   else

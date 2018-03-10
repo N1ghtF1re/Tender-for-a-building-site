@@ -4,7 +4,7 @@ object TenderForm: TTenderForm
   HorzScrollBar.Style = ssFlat
   HorzScrollBar.Visible = False
   Caption = 'TenderForm'
-  ClientHeight = 246
+  ClientHeight = 226
   ClientWidth = 724
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -23,7 +23,7 @@ object TenderForm: TTenderForm
     Left = 0
     Top = 0
     Width = 724
-    Height = 246
+    Height = 226
     Align = alClient
     Color = clWhite
     ParentBackground = False
@@ -32,7 +32,7 @@ object TenderForm: TTenderForm
       Left = 1
       Top = 1
       Width = 722
-      Height = 138
+      Height = 118
       Align = alClient
       ColCount = 1
       Ctl3D = False
@@ -57,7 +57,7 @@ object TenderForm: TTenderForm
     end
     object pnlBottom: TPanel
       Left = 1
-      Top = 180
+      Top = 160
       Width = 722
       Height = 65
       Align = alBottom
@@ -84,7 +84,7 @@ object TenderForm: TTenderForm
     end
     object pnlEditOn: TPanel
       Left = 1
-      Top = 139
+      Top = 119
       Width = 722
       Height = 41
       Align = alBottom

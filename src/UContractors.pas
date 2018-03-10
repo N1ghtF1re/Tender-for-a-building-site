@@ -157,7 +157,9 @@ begin
   Grid.Cells[0,0] := 'Компания';
   Grid.Cells[1,0] := '';
   Grid.Cells[2,0] := '';
+
   temp := head^.adr;
+
   while temp <> nil do
   begin
     Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
