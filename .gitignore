@@ -1,0 +1,6 @@
+__history/
+__recovery/
+src/__recovery/
+src/__history/
+src/Win32/Debug/
+*~
