@@ -4,3 +4,5 @@ src/__recovery/
 src/__history/
 src/Win32/Debug/
 *~
+*.identcache
+*.stat
