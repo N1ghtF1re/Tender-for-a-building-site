@@ -1,4 +1,4 @@
-Subprograms table generator
+Tender for a building site
 --------------------
 The program stores in separate files information about the objects that need to be built, information about contractors and their employees.
 
@@ -15,3 +15,4 @@ How to use
 Open the exe file and you can already browse the lists. To add a list, click the "Add" button below. To edit the list - first turn on the editing in the menu, and then just click on the cells of the table. To declare a tender - just click the appropriate button in the menu and enter the name of the object.
 
 The interface was made the most intuitive for the average user. Disassemble everything!
+
