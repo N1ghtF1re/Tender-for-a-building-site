@@ -47,16 +47,18 @@ uses Tender;
 procedure TAddListForm.btnAddListClick(Sender: TObject);
 var 
   st:string;
+  objt: TObjTypes;
 begin
   case TMode(TenderForm.mode) of
     MObjList:
     begin
       try
-        if ObjAdrOf(TenderForm.getObjHead, Trim(edtInput1.Text)) = nil then
+        if ObjAdrOfName(TenderForm.getObjHead, Trim(edtInput1.Text)) = nil then
         begin
           if ( (Trim(edtInput1.Text) <> '') and (Trim(edtInput2.Text) <> '') and (Trim(edtInput1.Text) <> '')) then
           begin
-            TenderForm.addNewObj(Trim(edtInput1.Text), StrToInt(edtInput2.Text), StrToCurr(edtInput3.Text));
+            while Ord(ObjT)<>cbbSetObject.ItemIndex do ObjT:=Succ(ObjT);
+            TenderForm.addNewObj(ObjT, Trim(edtInput1.Text),StrToInt(edtInput2.Text), StrToCurr(edtInput4.Text));
             Self.Close;
           end
           else
@@ -86,16 +88,17 @@ begin
     MWorkList:
     begin
       try
-        st := edtInput2.Text;
+        st := cbbSetCompany.Text;
           //ShowMessage( TenderForm.getAdditionalTitle );
           if (TenderForm.getAdditionalTitle <> '' ) then
           begin
             st:=TenderForm.getAdditionalTitle;
           end;
 
+          while Ord(ObjT)<>cbbSetObject.ItemIndex do ObjT:=Succ(ObjT);
           if ( (Trim(cbbSetObject.Text) <> '') and (Trim(edtInput1.Text) <> '') and (Trim(edtInput4.Text) <> '') and (Trim(cbbSetObject.Text) <> '')) then
           begin
-            TenderForm.addNewWorkers(edtInput1.Text, cbbSetObject.Text,st, StrToCurr(edtInput4.Text));
+            TenderForm.addNewWorkers(edtInput1.Text, objt,st, StrToCurr(edtInput4.Text));
             Self.Close;
           end
           else
@@ -120,15 +123,17 @@ begin
         lblInput3.Visible := True;
         edtInput2.Visible := true;
         edtInput3.Visible := True;
-         cbbSetCompany.Visible := false;
-         cbbSetObject.Visible:=False;
+        cbbSetCompany.Visible := false;
+        cbbSetObject.Visible:=true;
 
-        edtInput4.Visible := false;
-        lblInput4.Visible := false;
+        edtInput4.Visible := true;
+        lblInput4.Visible := true;
         lblInput2.Caption := 'Минимальное кол-во рабочих';
         edtInput2.Text := '';
-        lblInput3.Caption := 'Цена материалов';
+        lblInput3.Caption := 'Тип объекта';
         edtInput3.Text := '';
+        lblInput4.Caption := 'Цена материалов';
+        edtInput4.Text := '';
       end;
       MContrList:
       begin
@@ -151,7 +156,7 @@ begin
         edtInput3.Visible := false;
         cbbSetCompany.Visible := True;
         cbbSetObject.Visible:=true;
-        getCBBObjectsList(cbbSetObject, TenderForm.getObjHead);
+        //getCBBObjectsList(cbbSetObject, TenderForm.getObjHead);
         getCBBContrList(cbbSetCompany, TenderForm.getContHead);
         if (TenderForm.getAdditionalTitle <> '' ) then
         begin

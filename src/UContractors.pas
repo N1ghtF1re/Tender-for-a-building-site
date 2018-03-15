@@ -8,7 +8,7 @@
 unit UContractors;
 
 interface
-uses UWorkers, Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs, Vcl.StdCtrls;
+uses UWorkers, Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs, Vcl.StdCtrls, UObjects;
 type
   { *** ÑÏÈÑÎÊ ÏÎÄÐßÄ×ÈÊÎÂ ÍÀ×ÀËÎ *** }
   TContractorsInfo = record  // Áëîê èíôîðìàöèè
@@ -26,19 +26,19 @@ type
 procedure readContrFile(const head:TContrAdr; const ContrFile, WorkFile: string);
 function WorkerAdrOf(const head:TContrAdr; const name:string; const comp:string):TWorkAdr;
 procedure removeWorkList(var head:TContrAdr; const intadr:integer); overload;
-procedure removeWorkList(var head:TContrAdr; const obj:string); overload;
+//procedure removeWorkList(var head:TContrAdr; const obj:string); overload;
 procedure editContrList(head:TContrAdr; name:string; newname:string);
 procedure removeContrList(var head:TContrAdr; const el:string);
 procedure saveContrFile(const head:TContrAdr; const ContrFile, WorkFile: string);
 procedure insertContrList(const head: TContrAdr; name:string);
 procedure writeContrList(Grid: TStringGrid;var head:TContrAdr);
 function insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
+        const Salary: Currency; const ObjType: TObjTypes):integer;
 function ContrAdrOf(const head: TContrAdr; name: string):TContrAdr;
 procedure writeWorkListWithContr(Grid: TStringGrid;var head:TContrAdr; const company:string);
 procedure writeAllWorkListWithContr(Grid: TStringGrid;var head:TContrAdr);
 procedure getCBBContrList(CBB: TComboBox; const head: TContrAdr);
-procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency); overload;
+procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp: string; newobj:TObjTypes; const newsalary: Currency); overload;
 procedure editWorkList(const head:TWorkAdr; newcompany:string); overload;
 procedure searchContrList(head: TContrAdr; Grid:TStringGrid; name:string; n1:byte);
 procedure searchWorkerList(Grid: TStringGrid;var head:TContrAdr; fio, comp, obj:string; salary: currency; n1,n2,n3,n4:byte);
@@ -175,13 +175,14 @@ begin
 end;
 
 function insertWorkListFromCompany(const head: TContrAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
+        const Salary: Currency; const ObjType: TObjTypes):integer;
 var
   temp:TContrAdr;
 begin
-  temp := head;
+  temp := head^.adr;
   while temp <> nil do
   begin
+    //ShowMessage();
     if (temp^.Info.Name = company) then
     begin
       Result := insertWorkList(temp^.WorkersHead, company, Name, Salary, ObjType);
@@ -189,7 +190,7 @@ begin
     end;
     temp:=temp^.Adr;
   end;
-  ShowMessage('Company not found');
+  ShowMessage('Company not found' + company);
 end;
 
 
@@ -329,7 +330,7 @@ begin
   end;
 end;
 
-procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp, newobj:string; const newsalary: Currency);
+procedure editWorkList(const head:TContrAdr; const intadr: integer; const newname, newcomp: string; newobj:TObjTypes; const newsalary: Currency);
 var
   t:TContrAdr;
   temp:TWorkAdr;
@@ -368,7 +369,7 @@ begin
   end;
 end;
 
-procedure removeWorkList(var head:TContrAdr; const obj:string);
+{procedure removeWorkList(var head:TContrAdr; const obj:string);
 var
   t:TContrAdr;
   temp,temp2:TWorkAdr;
@@ -390,7 +391,7 @@ begin
     end;
     t:=t^.Adr;
   end;
-end;
+end;  }
 
 procedure searchContrList(head: TContrAdr; Grid:TStringGrid; name:string; n1:byte);
 var

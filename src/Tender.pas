@@ -56,9 +56,9 @@ type
     procedure mniSaveAllClick(Sender: TObject);
     procedure btnAddClick(Sender: TObject);
     procedure SetEditOff;
-    procedure addNewWorkers(fio:string;obj:string;company:string; money: Currency);
+    procedure addNewWorkers(fio:string;obj:TObjTypes;company:string; money: Currency);
     procedure addNewCompany(CompName:string);
-    procedure addNewObj(obj:string; workers: Integer; money: Currency);
+    procedure addNewObj(obj:TObjTypes; ObjName:string; workers: Integer; money: Currency);
     procedure ListTableDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure mniEditOnClick(Sender: TObject);
@@ -72,7 +72,7 @@ type
     procedure mniSearchContrClick(Sender: TObject);
     procedure mniSearchWorkersClick(Sender: TObject);
     procedure SearchWorker(const fio, comp, obj:string; salary: Currency; n1,n2,n3,n4:byte);
-    procedure SearchObj(obj:string; minwork: integer; money: Currency; n1,n2,n3:Byte);
+    procedure SearchObj(obj:string; minwork: integer; money: Currency; objc: string; n1, n2,n3:Byte);
     procedure mniOpenObjClick(Sender: TObject);
     procedure rewriteObjects;
     procedure mniOpenContrClick(Sender: TObject);
@@ -124,16 +124,17 @@ begin
   isChanged := false;
 end;
 
-procedure TTenderForm.addNewObj(obj:string; workers: Integer; money: Currency);
+procedure TTenderForm.addNewObj(obj:TObjTypes; ObjName:string; workers: Integer; money: Currency);
 begin
-  insertObjList(ObjHead, obj, workers, money);
+  insertObjList(ObjHead, Objname, obj, workers, money);
   with TenderForm.ListTable do
   begin
     RowCount := RowCount + 1;
-    Cells[0, RowCount-1] := obj;
-    Cells[1, RowCount-1] := IntToStr(workers);
-    Cells[2, RowCount-1] := CurrToStr(money);
-    Cells[3,RowCount - 1] := 'Удалить';
+    Cells[0, RowCount-1] := Objname;
+    Cells[1, RowCount-1] := writeobjType(obj);
+    Cells[2, RowCount-1] := IntToStr(workers);
+    Cells[3, RowCount-1] := CurrToStr(money);
+    Cells[4,RowCount - 1] := 'Удалить';
     Resize;
   end;
   isChanged := true;
@@ -144,7 +145,7 @@ begin
   result := additionalTitle;
 end;
 
-procedure TTenderForm.addNewWorkers(fio:string;obj:string;company:string; money: Currency);
+procedure TTenderForm.addNewWorkers(fio:string;obj:TObjTypes;company:string; money: Currency);
 var
   intadr:integer;
 begin
@@ -155,7 +156,7 @@ begin
     Cells[0, RowCount-1] := fio;
     Cells[1, RowCount-1] := company;
     Cells[2, RowCount-1] := CurrToStr(money);
-    Cells[3, RowCount-1] := obj;
+    Cells[3, RowCount-1] := writeObjType(obj);
     Cells[4, RowCount-1] := IntToStr(intadr);
     Resize;
   end;
@@ -330,24 +331,39 @@ var
   name_id, objtype:string[30];
   minwork:integer;
   money: Currency;
+  objname: string;
+  ot: TObjTypes;
 begin
   // Сохраняем исходные данные
+
   name_id:= ListTable.Cells[0,ARow];
-  objtype := ListTable.Cells[0,ARow];
-  minwork := StrToInt(ListTable.Cells[1,ARow]);
-  money := StrToCurr(ListTable.Cells[2,ARow]);
+  objname:= ListTable.Cells[0,ARow];
+  objtype := ListTable.Cells[1,ARow];
+  minwork := StrToInt(ListTable.Cells[2,ARow]);
+  money := StrToCurr(ListTable.Cells[3,ARow]);
   case ACol of
     0: // Меняем название объекта
     begin
-      if(ObjAdrOf(ObjHead, inptext) = nil) then
+      if(ObjAdrOfName(ObjHead, inptext) = nil) then
       begin
-        objtype := inptext;
+        objname := inptext;
         ListTable.Cells[ACol,ARow] := inptext;
       end
       else
         ShowMessage('Такой объект уже есть');
     end;
-    1: // Меняем мин. кол-во рабочих
+    1: // Меняем тип объекта
+    begin
+
+      if compareType(inptext) then
+      begin
+        objtype := inptext;
+        ListTable.Cells[ACol,ARow] := inptext;
+      end
+      else
+        ShowMessage('Такого типа не существует');
+    end;
+    2: // Меняем мин. кол-во рабочих
     begin
       try
         minwork := StrToInt(inptext);
@@ -356,7 +372,7 @@ begin
         ShowMessage('Некорректный ввод')
       end;
     end;
-    2: // Меняем ЗП
+    3: // Меняем ЗП
     begin
       try
         money := StrToCurr(inptext);
@@ -366,7 +382,8 @@ begin
       end;
     end;
   end;
-  editObjList(ObjHead,name_id, objtype, minwork, money); // Изменяем список
+  ot := getObjType(objtype);
+  editObjList(ObjHead,name_id, objname, ot, minwork, money); // Изменяем список
 end;
 
 procedure TTenderForm.editContrData(inptext:string; ACol, ARow:Integer);
@@ -389,14 +406,15 @@ end;
 procedure TTenderForm.editWorkersData(inptext: string; ACol: Integer; ARow: Integer);
 var
   intadr : integer;
-  fio,company, obj:string;
+  fio,company:string;
+  obj:TObjTypes;
   salary: Currency;
 begin
   intadr := StrToInt(ListTable.Cells[4,ARow]);
   fio := ListTable.Cells[0,ARow];
   company := ListTable.Cells[1,ARow];
   salary := StrToCurr(ListTable.Cells[2,ARow]);
-  obj := ListTable.Cells[3,ARow];
+  obj := getObjType(ListTable.Cells[3,ARow]);
   case ACol of
     0: // Изменение ФИО
     begin
@@ -433,9 +451,9 @@ begin
     end;
     3: // Меняем объект
     begin
-      if ObjAdrOf(ObjHead, inptext) <> nil then
+      if ObjAdrOfName(ObjHead, inptext) <> nil then
       begin
-        obj := inptext;
+        obj := getObjType(inptext);
         ListTable.Cells[ACol,ARow] := inptext;
       end
       else
@@ -511,11 +529,11 @@ begin
     begin
       if ((ARow <> 0) and (ACol = ListTable.ColCount-1) and (ARow <> -1)) then
       begin
-        if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!' + #10#13 + 'При удалении объекта будут удалены все рабочие, которые могут строить этот объект',mtCustom,[mbYes,mbNo], 0) = mrYes then
+        if MessageDlg('Удалить ' + ListTable.Cells[0, ARow] + ' ?!' ,mtCustom,[mbYes,mbNo], 0) = mrYes then
         begin
           isChanged := true;
           removeObjList(ObjHead, ListTable.Cells[0, ARow]);
-          removeWorkList(ContHead,ListTable.Cells[0, ARow]);
+          //removeWorkList(ContHead,ListTable.Cells[0, ARow]);
           removeRow(ListTable, ARow);
         end;
         Resize;
@@ -725,9 +743,15 @@ begin
   pnlEditOn.Visible := False;
 end;
 
-procedure TTenderForm.SearchObj(obj:string; minwork: integer; money: Currency; n1, n2,n3:Byte);
+procedure TTenderForm.SearchObj(obj:string; minwork: integer; money: Currency; objc: string; n1, n2,n3:Byte);
+var
+  objtype: TObjTypes;
 begin
-  searchObjList(ObjHead,ListTable, obj, minwork, money, n1, n2,n3);
+  if Trim(objc) <>  '' then
+    objtype := getObjType(objc)
+  else
+    objtype := objNone;
+  searchObjList(ObjHead,ListTable, obj, minwork, money,objtype, n1, n2,n3);
   Mode := MObjList;
   resize;
 end;

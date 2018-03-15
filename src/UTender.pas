@@ -43,7 +43,7 @@ var
   Money:Currency;
 
 begin
-  Otemp := ObjAdrOf(OHead, obj);
+  Otemp := ObjAdrOfName(OHead, obj);
   N := 0;
   if (Otemp <> nil) then
   begin
@@ -60,7 +60,7 @@ begin
       while WorkTemp <> nil do
       begin
 
-        if ( (WorkTemp^.Info.ObjType = obj) and (WorkTemp^.Info.Company = ContTemp^.Info.Name)) then
+        if ( (WorkTemp^.Info.ObjType = Otemp^.Info.obType) and (WorkTemp^.Info.Company = ContTemp^.Info.Name)) then
         begin
           inc(Result);
           Inc(Workers);

@@ -9,7 +9,7 @@ unit UWorkers;
 
 interface
 uses
-  Vcl.Forms,Vcl.Grids, Vcl.Graphics, Vcl.StdCtrls;
+  Vcl.Forms,Vcl.Grids, Vcl.Graphics, Vcl.StdCtrls, UObjects;
 
 type
  {  ***** СПИСОК РАБОЧИХ НАЧАЛО ***** }
@@ -17,7 +17,7 @@ type
       Name: string[30];        // ФИО Рабочего
       Company: string[30];     // Компания, в которой он работает (Подрядчик)
       Salary:Currency;         // Зарплата
-      ObjType: string[30];     // Тип объекта, которым он может заниматься
+      ObjType: TObjTypes;     // Тип объекта, которым он может заниматься
     end;
     TWorkAdr = ^TWorkersList;// Ссылка на список рабочих
     TWorkersList = record    // Список рабочих
@@ -32,14 +32,14 @@ procedure writeWorkList(Grid:TStringGrid; const head:TWorkAdr);
 //procedure removeWorkList(var head:TContrAdr; const el:string);
 procedure readFromFileWithContractors(const head: TWorkAdr; contr: string; const WorkFile:string);
 function insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
+        const Salary: Currency;ObjType: TObjTypes):integer;
 procedure saveWorkFile(const head:TWorkAdr; const WorkFile:string);
 procedure writeSearchWorkListGrid(Grid: TStringGrid;var head:TWorkAdr; fio, comp, obj:string; salary: currency; n1,n2,n3,n4:byte);
 procedure removeAllWorkerList(head:TWorkAdr);
 
 implementation
 
-  uses  System.SysUtils, UObjects, UContractors;
+  uses  System.SysUtils,  UContractors;
 
 
 
@@ -79,7 +79,7 @@ begin
 end;
 
 function insertWorkList(const head: TWorkAdr; const company:string; const Name:string;
-        const Salary: Currency = 0; const ObjType: string = '1 Float House'):integer;
+        const Salary: Currency;ObjType: TObjTypes):integer;
 var
   temp:TWorkAdr;
 begin
@@ -117,7 +117,7 @@ begin
     Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
     Grid.Cells[1,Grid.RowCount - 1] := temp^.Info.Company;
     Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.Salary);
-    Grid.Cells[3,Grid.RowCount - 1] := temp^.Info.ObjType;
+    Grid.Cells[3,Grid.RowCount - 1] := writeObjType( temp^.Info.ObjType );
     Grid.Cells[4,Grid.RowCount - 1] := IntToStr( Integer(temp) );
     temp:=temp^.adr;
     Grid.RowCount := Grid.RowCount + 1;
@@ -180,8 +180,8 @@ begin
     else
     begin
       case n4 of
-        0: b3 := temp^.Info.ObjType = obj;
-        1: b3 := Pos(AnsiUpperCase(obj), AnsiUpperCase(temp^.Info.ObjType)) > 0;
+        0: b3 := temp^.Info.ObjType = getObjType( obj );
+        1: b3 := Pos(AnsiUpperCase(obj), AnsiUpperCase(writeObjType( temp^.Info.ObjType))) > 0;
       end;
     end;
     if salary = -1 then
@@ -201,7 +201,7 @@ begin
       Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.Name;
       Grid.Cells[1,Grid.RowCount - 1] := temp^.Info.Company;
       Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.Salary);
-      Grid.Cells[3,Grid.RowCount - 1] := temp^.Info.ObjType;
+      Grid.Cells[3,Grid.RowCount - 1] := writeObjType( temp^.Info.ObjType );
       Grid.Cells[4,Grid.RowCount - 1] := IntToStr( Integer(temp) );
       Grid.RowCount := Grid.RowCount + 1;
     end;

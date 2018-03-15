@@ -101,6 +101,11 @@ object AddListForm: TAddListForm
       Height = 21
       Style = csDropDownList
       TabOrder = 5
+      Items.Strings = (
+        #1044#1086#1084
+        #1047#1076#1072#1085#1080#1077
+        #1046#1077#1083#1077#1079#1085#1072#1103' '#1076#1086#1088#1086#1075#1072
+        #1044#1086#1088#1086#1075#1072)
     end
     object edtInput4: TEdit
       Left = 48

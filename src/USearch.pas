@@ -70,8 +70,10 @@ begin
     begin
       if f2 = '' then f2 := '-1';
       if f3 = '' then f3 := '-1';
+
       try
-        TenderForm.SearchObj(f1, StrToInt(f2), StrToCurr(f3), n1, n2,n3);
+
+        TenderForm.SearchObj(f1, StrToInt(f2), StrToCurr(f3), f4, n1, n2,n3);
         Self.Close;
       except on E: Exception do
         ShowMessage('Некорректный ввод')
@@ -129,12 +131,15 @@ begin
       Label1.Visible := true;
       Label2.Visible := true;
       Label3.Visible := true;
+      Label4.Visible := true;
       edt1.Visible := true;
       edt2.Visible := true;
       edt3.Visible := true;
+      edt4.Visible := true;
       Label1.Caption := 'Название объекта';
       Label2.Caption := 'Минимальное количество рабоcчих';
       Label3.Caption := 'Цена за материалы';
+      Label4.Caption := 'Тип объекта';
       cbb1.Visible := true;
       cbb1.Items.Add('Точное равенство');
       cbb1.Items.Add('Вхождение');
@@ -149,6 +154,8 @@ begin
       cbb3.Items.Add('<');
       cbb3.Items.Add('>');
       cbb3.ItemIndex := 0;
+
+
     end;
     MContrList:
     begin

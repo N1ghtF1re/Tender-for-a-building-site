@@ -11,9 +11,11 @@ interface
 uses
   Vcl.Forms,Vcl.Grids, Vcl.Graphics,Vcl.Dialogs, Vcl.StdCtrls;
 type
+  TObjTypes = (house = 0, building = 1, Railway = 2, road = 3, objNone);
   { *** СПИСОК ОБЪЕКТОВ НАЧАЛО *** }
   TObjInfo = record    // Блок информации
-    obType:string[30];  // Тип объекта
+    name: String[30];
+    obType:TObjTypes;  // Тип объекта
     Workers:integer;    // Минимальное количество рабочих
     MatCost:Currency;   // Стоимость материалов
   end;
@@ -25,16 +27,19 @@ type
   { *** СПИСОК ОБЪЕКТОВ КОНЕЦ  *** }
 
 // ПРОЦЕДУРЫ И ФУНКЦИИ
+function writeObjType(ob: TObjTypes):string;
 procedure getCBBObjectsList(CBB: TComboBox; const head: TObjAdr);
 procedure readObjFile(const head:TObjAdr; ObjFile:string);
 procedure saveObjFile(const head:TObjAdr; ObjFile:string);
 procedure removeObjList(var head:TObjAdr; const el:string);
-procedure insertObjList(const head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
+procedure insertObjList(const head: TObjAdr; name: string; tp:TObjTypes ; wk:integer = 0; mc:Currency = 0);
 procedure writeObjList(Grid:TStringGrid; const head:TObjAdr);
-function ObjAdrOf(head: TObjAdr; name: string):TObjAdr;
-procedure editObjList(head:TObjAdr; name:string; newname:string; newwork: integer; newmoney: Currency );
-procedure searchObjList(head:TObjAdr;Grid:TStringGrid;obj:string; minwork: integer; money: Currency; n1,n2,n3:integer);
+function ObjAdrOfName(head: TObjAdr; name: string):TObjAdr;
+procedure editObjList(head:TObjAdr; name:string; newname:string; newtype: TObjTypes; newwork: integer; newmoney: Currency );
+procedure searchObjList(head:TObjAdr;Grid:TStringGrid;obj:string; minwork: integer; money: Currency; objtype: TObjTypes; n1,n2,n3:integer);
 procedure removeAllObjList(head:TObjAdr);
+function compareType(t: string):boolean;
+function getObjType(t:string):TObjTypes;
 
 implementation
 uses
@@ -45,21 +50,23 @@ uses
 
 { Функция ObjAdrOf возвращает адрес элемента списка с нужным полем name
   Если значение не найдено, возвращается nil }
-function ObjAdrOf(head: TObjAdr; name: string):TObjAdr;
+
+function ObjAdrOfName(head: TObjAdr; name: string):TObjAdr;
 var
   temp: TObjAdr;
 begin
-
   temp := head;
   Result := nil;
   while(temp <> nil) do
   begin
     //ShowMessage(name + ' / ' + temp^.Info.obType);
-    if temp^.Info.obType = name then
+    if temp^.Info.name = name then
       Result:=temp;
     temp := temp^.Adr;
   end;
+
 end;
+
 
 { Процедура readObjFile читает  типизированный файл, если его нет, создает его
 и заполняет список объектов из файла }
@@ -117,7 +124,7 @@ begin
 end;
 
 { Вставка элемента в конец списка}
-procedure insertObjList(const head: TObjAdr; tp:string = '1 Float House'; wk:integer = 0; mc:Currency = 0);
+procedure insertObjList(const head: TObjAdr; name: string; tp:TObjTypes ; wk:integer = 0; mc:Currency = 0);
 var
   temp:TObjAdr;
 begin
@@ -129,30 +136,71 @@ begin
   new(temp^.adr);
   temp:=temp^.adr;
   temp^.adr:=nil;
+  temp^.Info.name := name;
   temp^.Info.obType := tp;
   temp^.Info.Workers := wk;
   temp^.Info.MatCost := mc;
+end;
+
+function compareType(t: string):boolean;
+begin
+  if t = 'Дом' then
+    Result:= true
+  else if t = 'Здание' then
+    Result:= true
+  else if t = 'Железная дорога' then
+    Result:= true
+  else if t = 'Дорога' then
+    Result:= true
+  else
+    Result:= false;
+
+end;
+
+function getObjType(t:string):TObjTypes;
+begin
+  if t = 'Дом' then
+    Result:= house
+  else if t = 'Здание' then
+    Result:= building
+  else if t = 'Железная дорога' then
+    Result:= Railway
+  else if t = 'Дорога' then
+    Result:= road
+
+end;
+
+function writeObjType(ob: TObjTypes):string;
+begin
+  case ob of
+    house: Result := 'Дом';
+    building: Result := 'Здание' ;
+    Railway: Result := 'Железная дорога';
+    road: Result:= 'Дорога';
+  end;
 end;
 
 procedure writeObjList(Grid:TStringGrid; const head:TObjAdr);
 var
   temp:TObjAdr;
 begin
-  Grid.ColCount := 4;
+  Grid.ColCount := 5;
   Grid.RowCount := 2;
   Grid.Font.Color:= clWhite;
-  Grid.Cells[0,0] := 'Тип объекта';
-  Grid.Cells[1,0] := 'Мин. кол-во рабочих';
-  Grid.Cells[2,0] := 'Стоимость материалов';
+  Grid.Cells[0,0] := 'Название объекта';
+  Grid.Cells[1,0] := 'Тип объекта';
+  Grid.Cells[2,0] := 'Мин. кол-во рабочих';
+  Grid.Cells[3,0] := 'Стоимость материалов';
   Grid.Font.Color:= clBlack;
   //ShowMessage('kek');
   temp := head^.adr;
   while temp <> nil do
   begin
-    Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.obType;
-    Grid.Cells[1,Grid.RowCount - 1] := IntToStr(temp^.INFO.Workers);
-    Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.MatCost);
-    Grid.Cells[3,Grid.RowCount - 1] := 'Удалить';
+    Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.name;
+    Grid.Cells[1,Grid.RowCount - 1] := writeObjType(temp^.INFO.obType);
+    Grid.Cells[2,Grid.RowCount - 1] := IntToStr(temp^.INFO.Workers);
+    Grid.Cells[3,Grid.RowCount - 1] := CurrToStr(temp^.INFO.MatCost);
+    Grid.Cells[4,Grid.RowCount - 1] := 'Удалить';
     temp:=temp^.adr;
     Grid.RowCount := Grid.RowCount + 1;
   end;
@@ -168,7 +216,7 @@ begin
   temp := head^.adr;
   while temp <> nil do
   begin
-    CBB.Items.Add(temp^.Info.obType);
+    CBB.Items.Add(temp^.Info.name);
     temp:=temp^.adr;
   end;
 end;
@@ -181,7 +229,7 @@ begin
   while temp^.adr <> nil do
   begin
     temp2 := temp^.adr;
-    if temp2^.Info.obType = el then
+    if temp2^.Info.name = el then
     begin
       temp^.adr := temp2^.adr;
       dispose(temp2);
@@ -191,7 +239,7 @@ begin
   end;
 end;
 
-procedure editObjList(head:TObjAdr; name:string; newname:string; newwork: integer; newmoney: Currency );
+procedure editObjList(head:TObjAdr; name:string; newname:string; newtype: TObjTypes; newwork: integer; newmoney: Currency );
 var
   temp:TObjAdr;
   flag: boolean;
@@ -200,28 +248,30 @@ begin
   flag := true;
   while (temp <> nil) and flag do
   begin
-    if temp.Info.obType = name then
+    if temp.Info.name = name then
     begin
-      temp.Info.obType := newname;
-      temp.Info.Workers := newwork;
-      temp.Info.MatCost := newmoney;
+      temp^.info.name := newname;
+      temp^.Info.obType := newtype;
+      temp^.Info.Workers := newwork;
+      temp^.Info.MatCost := newmoney;
       flag := false;
     end;
     temp := temp^.Adr;
   end;
 end;
 
-procedure searchObjList(head:TObjAdr;Grid:TStringGrid;obj:string; minwork: integer; money: Currency; n1,n2,n3:integer);
+procedure searchObjList(head:TObjAdr;Grid:TStringGrid;obj:string; minwork: integer; money: Currency; objtype: TObjTypes; n1,n2,n3:integer);
 var
-  b1,b2,b3:Boolean;
+  b1,b2,b3, b4:Boolean;
   temp:TObjAdr;
 begin
-  Grid.ColCount := 4;
+  Grid.ColCount := 5;
   Grid.RowCount := 2;
-  Grid.Cells[0,0] := 'Тип объекта';
-  Grid.Cells[1,0] := 'Мин. кол-во рабочих';
-  Grid.Cells[2,0] := 'Стоимость материалов';
-  temp:=head;
+  Grid.Cells[0,0] := 'Название объекта';
+  Grid.Cells[1,0] := 'Тип объекта';
+  Grid.Cells[2,0] := 'Мин. кол-во рабочих';
+  Grid.Cells[3,0] := 'Стоимость материалов';
+  temp:=head.adr;
   while temp <> nil do
   begin
     if obj = '' then
@@ -229,10 +279,10 @@ begin
     else
     begin
       if n1 = 0 then
-        b1 := temp^.Info.obType = obj
+        b1 := temp^.Info.name = obj
       else
       begin
-        b1 := Pos(AnsiUpperCase(obj),AnsiUpperCase(temp^.Info.obType)) > 0;
+        b1 := Pos(AnsiUpperCase(obj),AnsiUpperCase(temp^.Info.name)) > 0;
       end;
 
     end;
@@ -257,13 +307,19 @@ begin
         2: b3 := temp^.Info.MatCost > money;
       end;
     end;
+    if objtype = objNone then
+      b4:= True
+    else
+      b4 := objtype = temp^.Info.obType;
 
-    if b1 and b2 and b3 then
+
+    if b1 and b2 and b3 and b4 then
     begin
-      Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.obType;
-      Grid.Cells[1,Grid.RowCount - 1] := IntToStr(temp^.INFO.Workers);
-      Grid.Cells[2,Grid.RowCount - 1] := CurrToStr(temp^.INFO.MatCost);
-      Grid.Cells[3,Grid.RowCount - 1] := 'Удалить';
+      Grid.Cells[0,Grid.RowCount - 1] := temp^.INFO.name;
+      Grid.Cells[1,Grid.RowCount - 1] := writeObjType(temp^.Info.obType);
+      Grid.Cells[2,Grid.RowCount - 1] := IntToStr(temp^.INFO.Workers);
+      Grid.Cells[3,Grid.RowCount - 1] := CurrToStr(temp^.INFO.MatCost);
+      Grid.Cells[4,Grid.RowCount - 1] := 'Удалить';
       Grid.RowCount := Grid.RowCount + 1;
     end;
 
